@@ -1,0 +1,5 @@
+pytest==6.2.5
+pytest-django==4.4.0
+pytest-pythonpath==0.7.3
+django==3.2.7
+djangorestframework==3.12.4
