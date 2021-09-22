@@ -7,37 +7,43 @@ class User(AbstractUser):
     email = models.EmailField(
         'Адрес электронной почты',
         max_length=254,
-        blank=True,
-        default='',
+        unique=True,
     )
     username = models.CharField(
         'Уникальный юзернейм',
         max_length=150,
-        validators=(validators.RegexValidator(r'^[\w.@+-]+\z'),),
+        validators=(
+            validators.RegexValidator(r'^[\w.@+-]+\Z',
+                                      message='Введите допустимое имя'),
+        ),
         unique=True,
+    )
+    password = models.CharField(
+        'Пароль',
+        max_length=150
     )
     first_name = models.CharField(
         'Имя',
         max_length=150,
-        blank=True,
-        default='',
     )
     last_name = models.CharField(
         'Фамилия',
         max_length=150,
-        blank=True,
-        default='',
     )
     shopping_cart_recipes = models.ManyToManyField(
         to='Recipe',
+        blank=True,
         related_name='users_have_in_shopping_cart',
         verbose_name='Корзина',
     )
     favorite_recipes = models.ManyToManyField(
         to='Recipe',
+        blank=True,
         related_name='users_have_in_favorite',
         verbose_name='Избранное',
     )
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username', 'password', 'first_name', 'last_name']
 
     class Meta:
         verbose_name = 'Пользователь'
@@ -88,7 +94,10 @@ class Tag(models.Model):
         'Уникальный слаг',
         max_length=200,
         unique=True,
-        validators=(validators.RegexValidator(r'^[-a-zA-Z0-9_]+$'),),
+        validators=(
+            validators.RegexValidator(r'^[-a-zA-Z0-9_]+$',
+                                      message='Введите допустимый слаг'),
+        ),
     )
 
     class Meta:
