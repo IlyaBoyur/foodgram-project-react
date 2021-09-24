@@ -3,6 +3,7 @@ from rest_framework import status
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from rest_framework.authtoken.models import Token
+from api.models import Ingredient, Tag
 
 
 User = get_user_model()
@@ -12,6 +13,8 @@ TOKEN_LOGOUT_URL = reverse('token_logout')
 USERS_URL = reverse('users-list')
 USERS_SET_PASSWORD_URL = reverse('users-set-password')
 USERS_ME_URL = reverse('users-me')
+INGREDIENTS_URL = reverse('ingredients-list')
+TAGS_URL = reverse('tags-list')
 
 
 # Users
@@ -115,3 +118,57 @@ def test_users_set_password(user_client, user_credentials):
         format='json',
     )
     assert response.status_code == status.HTTP_204_NO_CONTENT
+
+
+# Ingredients
+@pytest.mark.django_db
+def test_ingredients_list(setup_ingredient, guest_client):
+    """Запрос списка ингредиентов возвращает ожидаемые данные."""
+    assert 1 == Ingredient.objects.count()
+    assert guest_client.get(INGREDIENTS_URL).data[0]['id'] == (
+        setup_ingredient.id
+    )
+
+
+@pytest.mark.django_db
+def test_ingredients_by_id(setup_ingredient, guest_client):
+    """Запрос ингредиента по ID возвращает ожидаемые данные."""
+    INGREDIENTS_DETAIL_URL = reverse('ingridients-detail',
+                                     args=[setup_ingredient.id])
+    response = guest_client.get(INGREDIENTS_DETAIL_URL, format='json')
+    assert response.data['id'] == setup_ingredient.id
+    assert  response.data['name'] == setup_ingredient.name
+    assert response.data['measurement_unit'] == (
+        setup_ingredient.measurement_unit
+    )
+
+
+# Tags
+@pytest.mark.django_db
+def test_tags_list(setup_tag, guest_client):
+    """Запрос списка тэгов возвращает ожидаемые данные."""
+    assert 1 == Tag.objects.count()
+    assert guest_client.get(INGREDIENTS_URL).data[0]['id'] == (
+        setup_tag.id
+    )
+
+
+@pytest.mark.django_db
+def test_tags_by_id(setup_tag, guest_client):
+    """Запрос тэга по ID возвращает ожидаемые данные."""
+    TAGS_DETAIL_URL = reverse('tags-detail', args=[setup_tag.id])
+    response = guest_client.get(TAGS_DETAIL_URL, format='json')
+    assert response.data['id'] == setup_tag.id
+    assert  response.data['name'] == setup_tag.name
+    assert response.data['color'] == setup_tag.color
+    assert response.data['slug'] == setup_tag.slug
+
+
+@pytest.mark.django_db
+def test_tags_by_id_non_exists(setup_tag, guest_client):
+    """Запрос несуществующего тэга по ID возвращает ожидаемые данные."""
+    TAGS_DETAIL_NON_EXISTS_URL = reverse('tags-detail', args=[100500])
+    response = guest_client.get(TAGS_DETAIL_NON_EXISTS_URL, format='json')
+    assert None != response.data.get('detail')
+
+
