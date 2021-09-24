@@ -14,6 +14,7 @@ USERS_SET_PASSWORD_URL = reverse('users-set-password')
 USERS_ME_URL = reverse('users-me')
 
 
+# Users
 def assert_user_schema(schema, user, is_registration=False):
     assert schema['id'] == user.id
     assert schema['email'] == user.email
@@ -32,8 +33,8 @@ def test_users_list(guest_client, setup_user, setup_user_other):
     assert 2 == response.data['count']
     assert 'previous' in response.data
     assert 'next' in response.data
-    assert setup_user.username in response.data['results'][0].values()
-    assert setup_user_other.username in response.data['results'][1].values()
+    assert response.data['results'][0]['id'] == setup_user.id
+    assert response.data['results'][1]['id'] == setup_user_other.id
 
 
 @pytest.mark.django_db
