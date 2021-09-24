@@ -9,6 +9,9 @@ from rest_framework.response import Response
 from djoser import utils as djoser_utils
 from djoser import views as djoser_views
 from djoser.conf import settings as djoser_settings
+from rest_framework import viewsets
+from api.models import Ingredient, Tag, Recipe
+from api.serializers import IngredientSerializer, TagSerializer, RecipeSerializer
 
 
 User = get_user_model()
@@ -54,3 +57,18 @@ class TokenDestroyView(djoser_views.TokenDestroyView):
     def post(self, request):
         djoser_utils.logout_user(request)
         return Response(status=status.HTTP_201_CREATED)
+
+
+class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Ingredient.objects.all()
+    serializer_class = IngredientSerializer
+
+
+class TagViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
+
+
+class RecipeViewSet(viewsets.ModelViewSet):
+    queryset = Recipe.objects.all()
+    serializer_class = RecipeSerializer
