@@ -11,7 +11,7 @@ USERS_SET_PASSWORD_URL = reverse('users-set-password')
 
 @pytest.mark.django_db
 def test_users_url_exists_at_desired_location(guest_client, user_client,
-                                              setup_user):
+                                              setup_user, subtests):
         """Страницы возвращают ожидаемый код ответа
         соответствующему клиенту."""
         USERS_DETAIL_URL = reverse('users-detail',
@@ -29,4 +29,5 @@ def test_users_url_exists_at_desired_location(guest_client, user_client,
             [USERS_ME_URL, user_client, 200],
         ]
         for url, client, response_code in urls:
+            with subtests.test(url=url):
                 assert client.get(url).status_code == response_code
