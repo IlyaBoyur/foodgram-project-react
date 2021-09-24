@@ -3,10 +3,12 @@ from api.models import Recipe, Ingredient, Tag, Subscription
 
 
 EMAIL = 'test@mail'
+PASSWORD = 'TestUserPassword'
 USERNAME = 'TestUser'
 FIRST_NAME = 'TestUserName'
 LAST_NAME = 'TestUserSurname'
 EMAIL_OTHER = 'test@mail_other'
+PASSWORD_OTHER = 'TestUserPasswordOther'
 USERNAME_OTHER = 'TestUserOther'
 FIRST_NAME_OTHER = 'TestUserNameOther'
 LAST_NAME_OTHER = 'TestUserSurnameOther'
@@ -29,6 +31,7 @@ TAG_SLUG = 'test-slug'
 def setup_user(django_user_model):
     return django_user_model.objects.create_user(
         email=EMAIL,
+        password=PASSWORD,
         username=USERNAME,
         first_name=FIRST_NAME,
         last_name=LAST_NAME,
@@ -39,6 +42,7 @@ def setup_user(django_user_model):
 def setup_user_other(django_user_model):
     return django_user_model.objects.create_user(
         email=EMAIL_OTHER,
+        password=PASSWORD_OTHER,
         username=USERNAME_OTHER,
         first_name=FIRST_NAME_OTHER,
         last_name=LAST_NAME_OTHER,
