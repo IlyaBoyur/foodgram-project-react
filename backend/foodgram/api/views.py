@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
-from django.db.models import When, Case
+from django.db.models import When, Case, Value
+from django.db.models.fields import BooleanField
 from django.shortcuts import get_object_or_404
 from api.paginators import PageLimitPagination
 from rest_framework import status
@@ -18,11 +19,16 @@ class UserViewSet(djoser_views.UserViewSet):
     pagination_class = PageLimitPagination
 
     def get_queryset(self):
-        return super().get_queryset().annotate(is_subscribed=Case(
+        return (super().get_queryset().annotate(is_subscribed=Case(
             When(id__in=self.request.user.subscribed_to.values('author_id'),
                  then=True),
             default=False
+        )) if not self.request.user.is_anonymous
+        else super().get_queryset().annotate(is_subscribed=Value(
+            False,
+            output_field=BooleanField()
         ))
+        )
 
     @action(["get"], detail=False)
     def me(self, request, *args, **kwargs):
