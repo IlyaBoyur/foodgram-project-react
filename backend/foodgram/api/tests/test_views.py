@@ -24,7 +24,7 @@ def assert_user_schema(schema, user, is_registration=False):
     assert schema['username'] == user.username
     assert schema['first_name'] == user.first_name
     assert schema['last_name'] == user.last_name
-    assert None == schema.get('password')
+    assert schema.get('password') is None
     if not is_registration:
         assert schema['is_subscribed'] == False
 
@@ -133,7 +133,7 @@ def test_ingredients_list(setup_ingredient, guest_client):
 @pytest.mark.django_db
 def test_ingredients_by_id(setup_ingredient, guest_client):
     """Запрос ингредиента по ID возвращает ожидаемые данные."""
-    INGREDIENTS_DETAIL_URL = reverse('ingridients-detail',
+    INGREDIENTS_DETAIL_URL = reverse('ingredients-detail',
                                      args=[setup_ingredient.id])
     response = guest_client.get(INGREDIENTS_DETAIL_URL, format='json')
     assert response.data['id'] == setup_ingredient.id
@@ -148,9 +148,7 @@ def test_ingredients_by_id(setup_ingredient, guest_client):
 def test_tags_list(setup_tag, guest_client):
     """Запрос списка тэгов возвращает ожидаемые данные."""
     assert 1 == Tag.objects.count()
-    assert guest_client.get(INGREDIENTS_URL).data[0]['id'] == (
-        setup_tag.id
-    )
+    assert guest_client.get(TAGS_URL).data[0]['id'] == setup_tag.id
 
 
 @pytest.mark.django_db
@@ -165,10 +163,10 @@ def test_tags_by_id(setup_tag, guest_client):
 
 
 @pytest.mark.django_db
-def test_tags_by_id_non_exists(setup_tag, guest_client):
+def test_tags_by_id_non_exists(guest_client):
     """Запрос несуществующего тэга по ID возвращает ожидаемые данные."""
     TAGS_DETAIL_NON_EXISTS_URL = reverse('tags-detail', args=[100500])
     response = guest_client.get(TAGS_DETAIL_NON_EXISTS_URL, format='json')
-    assert None != response.data.get('detail')
+    assert response.data.get('detail') is not None
 
 
