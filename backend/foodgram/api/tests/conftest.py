@@ -1,12 +1,14 @@
 import pytest
 from api.models import Recipe, Ingredient, Tag, Subscription
+from rest_framework.authtoken.models import Token
+from rest_framework.test import APIClient
 
 
-EMAIL = 'test@mail'
+EMAIL = 'test.user@mail.com'
 PASSWORD = 'TestUserPassword'
 USERNAME = 'TestUser'
-FIRST_NAME = 'TestUserName'
-LAST_NAME = 'TestUserSurname'
+FIRST_NAME = 'TestUserFirstName'
+LAST_NAME = 'TestUserLastName'
 EMAIL_OTHER = 'test@mail_other'
 PASSWORD_OTHER = 'TestUserPasswordOther'
 USERNAME_OTHER = 'TestUserOther'
@@ -28,14 +30,19 @@ TAG_SLUG = 'test-slug'
 
 
 @pytest.fixture()
-def setup_user(django_user_model):
-    return django_user_model.objects.create_user(
-        email=EMAIL,
-        password=PASSWORD,
-        username=USERNAME,
-        first_name=FIRST_NAME,
-        last_name=LAST_NAME,
-    )
+def user_credentials():
+    return {
+        'email': EMAIL,
+        'username': USERNAME,
+        'password': PASSWORD,
+        'first_name': FIRST_NAME,
+        'last_name': LAST_NAME,
+    }
+
+
+@pytest.fixture()
+def setup_user(django_user_model, user_credentials):
+    return django_user_model.objects.create_user(**user_credentials)
 
 
 @pytest.fixture()
@@ -87,3 +94,24 @@ def setup_recipe(setup_user, setup_ingredient, setup_tag):
     recipe.ingredients.add(setup_ingredient,
                            through_defaults={'amount': INGREDIENT_AMOUNT})
     return recipe
+
+
+@pytest.fixture()
+def guest_client():
+    return APIClient()
+
+
+@pytest.fixture()
+def user_client(setup_user, db):
+    token = Token.objects.create(user=setup_user)
+    client = APIClient()
+    client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
+    return client
+
+
+@pytest.fixture()
+def user_client_other(setup_user_other, db):
+    token = Token.objects.create(user=setup_user_other)
+    client = APIClient()
+    client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
+    return client
