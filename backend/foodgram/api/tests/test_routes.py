@@ -1,7 +1,7 @@
 from django.urls import reverse
 
 
-def test_routes(setup_user):
+def test_routes(setup_user, subtests):
     """URL-адрес, рассчитанный через имя,
     соответствует ожидаемому видимому URL."""
     routes = {
@@ -16,4 +16,5 @@ def test_routes(setup_user):
                                                 args=[setup_user.id]),
     }
     for url, reversed_url in routes.items():
-        assert url == reversed_url
+        with subtests.test(url=url, reversed_url=reversed_url):
+            assert url == reversed_url
