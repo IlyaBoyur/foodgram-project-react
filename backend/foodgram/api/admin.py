@@ -5,21 +5,20 @@ from .models import IngredientInRecipe, User, Subscription, Ingredient, Tag, Rec
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'email', 'username', 'first_name', 'last_name')
+    list_display = ('email', 'username', 'first_name', 'last_name')
     search_fields = ('email', 'username')
 
 
 @admin.register(Subscription)
 class SubscriptionAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'author', 'subscriber')
+    list_display = ('author', 'subscriber')
 
 
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'name', 'measurement_unit')
+    list_display = ('name', 'measurement_unit')
     list_filter = ('measurement_unit',)
     search_fields = ('name',)
-    ordering = ('pk',)
 
 
 @admin.register(Tag)
