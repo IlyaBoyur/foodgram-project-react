@@ -6,9 +6,7 @@ from api.paginators import PageLimitPagination
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from djoser import utils as djoser_utils
 from djoser import views as djoser_views
-from djoser.conf import settings as djoser_settings
 from rest_framework import viewsets
 from api.models import Ingredient, Tag, Recipe
 from api.serializers import IngredientSerializer, TagSerializer, RecipeSerializer
@@ -45,18 +43,16 @@ class UserViewSet(djoser_views.UserViewSet):
 
 class TokenCreateView(djoser_views.TokenCreateView):
     def _action(self, serializer):
-        token = djoser_utils.login_user(self.request, serializer.user)
-        token_serializer_class = djoser_settings.SERIALIZERS.token
-        return Response(
-            data=token_serializer_class(token).data,
-            status=status.HTTP_201_CREATED,
-        )
+        response = super()._action(serializer)
+        response.status_code = status.HTTP_201_CREATED
+        return response
 
 
 class TokenDestroyView(djoser_views.TokenDestroyView):
     def post(self, request):
-        djoser_utils.logout_user(request)
-        return Response(status=status.HTTP_201_CREATED)
+        response = super().post(request)
+        response.status_code = status.HTTP_201_CREATED
+        return response
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
