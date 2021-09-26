@@ -100,7 +100,7 @@ def test_users_registered_guest_can_login(setup_user, user_credentials,
 
     
 @pytest.mark.django_db
-def test_users_registered_guest_can_logout(user_client):
+def test_users_authenticated_user_can_logout(user_client):
     """Запрос на разлогирование возвращает ожидаемые данные."""
     response = user_client.post(TOKEN_LOGOUT_URL, data=None, format='json')
     assert response.status_code == status.HTTP_201_CREATED
