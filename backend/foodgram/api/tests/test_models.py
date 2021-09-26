@@ -28,6 +28,10 @@ def test_subscription_verbose_names(setup_subscription):
         assert setup_subscription._meta.get_field(field).verbose_name == value
     assert setup_subscription._meta.verbose_name == verbose_name
     assert setup_subscription._meta.verbose_name_plural == verbose_name_plural
+    assert str(setup_subscription) == (
+        f'{setup_subscription.subscriber.username} -> '
+        f'{setup_subscription.author.username}'
+    )
 
 
 def test_tag_verbose_names(setup_tag):
@@ -43,6 +47,7 @@ def test_tag_verbose_names(setup_tag):
         assert setup_tag._meta.get_field(field).verbose_name == value
     assert setup_tag._meta.verbose_name == verbose_name
     assert setup_tag._meta.verbose_name_plural == verbose_name_plural
+    assert str(setup_tag) == setup_tag.name
 
 
 def test_ingredient_verbose_names(setup_ingredient):
@@ -57,6 +62,9 @@ def test_ingredient_verbose_names(setup_ingredient):
         assert setup_ingredient._meta.get_field(field).verbose_name == value
     assert setup_ingredient._meta.verbose_name == verbose_name
     assert setup_ingredient._meta.verbose_name_plural == verbose_name_plural
+    assert str(setup_ingredient) == (
+        f'{setup_ingredient.name}, {setup_ingredient.measurement_unit}'
+    )
 
 
 def test_recipe_verbose_names(setup_recipe):
@@ -75,3 +83,5 @@ def test_recipe_verbose_names(setup_recipe):
         assert setup_recipe._meta.get_field(field).verbose_name == value
     assert setup_recipe._meta.verbose_name == verbose_name
     assert setup_recipe._meta.verbose_name_plural == verbose_name_plural
+    assert str(setup_recipe) == setup_recipe.name
+

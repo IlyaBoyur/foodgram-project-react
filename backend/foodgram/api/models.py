@@ -67,6 +67,9 @@ class Subscription(models.Model):
         verbose_name='Подписчик',
     )
 
+    def __str__(self):
+        return f'{self.subscriber.username} -> {self.author.username}'
+
     class Meta:
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
@@ -100,6 +103,9 @@ class Tag(models.Model):
         ),
     )
 
+    def __str__(self):
+        return f'{self.name}'
+
     class Meta:
         verbose_name = 'Тэг'
         verbose_name_plural = 'Тэги'
@@ -117,6 +123,9 @@ class Ingredient(models.Model):
         'Единица измерения',
         max_length=200,
     )
+
+    def __str__(self):
+        return f'{self.name}, {self.measurement_unit}'
 
     class Meta:
         verbose_name = 'Ингредиент'
@@ -161,6 +170,9 @@ class Recipe(models.Model):
         related_name='recipes',
         verbose_name='Список тегов',
     )
+
+    def __str__(self):
+        return f'{self.name}'
 
     class Meta:
         verbose_name = 'Рецепт'
