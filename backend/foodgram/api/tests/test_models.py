@@ -67,6 +67,24 @@ def test_ingredient_verbose_names(setup_ingredient):
     )
 
 
+def test_ingredient_in_recipe_verbose_names(setup_ingredient_in_recipe):
+    """Ingredient: verbose_name в полях совпадает с ожидаемым"""
+    field_verboses = {
+        'ingredient': 'Ингредиент',
+        'recipe': 'Рецепт',
+    }
+    verbose_name = 'Ингредиент в рецепте'
+    verbose_name_plural = 'Ингредиенты в рецептах'
+    for field, value in field_verboses.items():
+        assert (
+        setup_ingredient_in_recipe._meta.get_field(field).verbose_name == value
+        )
+    assert setup_ingredient_in_recipe._meta.verbose_name == verbose_name
+    assert setup_ingredient_in_recipe._meta.verbose_name_plural == (
+        verbose_name_plural
+    )
+
+
 def test_recipe_verbose_names(setup_recipe):
     """Recipe: verbose_name в полях совпадает с ожидаемым"""
     field_verboses = {

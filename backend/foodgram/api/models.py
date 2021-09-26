@@ -185,10 +185,12 @@ class IngredientInRecipe(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
+        verbose_name='Рецепт',
     )
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
+        verbose_name='Ингредиент',
     )
     amount = models.PositiveIntegerField(
         'Количество',
@@ -198,6 +200,8 @@ class IngredientInRecipe(models.Model):
     )
 
     class Meta:
+        verbose_name = 'Ингредиент в рецепте'
+        verbose_name_plural = 'Ингредиенты в рецептах'
         ordering = (
             'recipe',
         )
