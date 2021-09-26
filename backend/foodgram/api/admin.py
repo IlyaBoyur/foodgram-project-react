@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import User, Subscription, Ingredient, Tag, Recipe
+from .models import IngredientInRecipe, User, Subscription, Ingredient, Tag, Recipe
 
 
 @admin.register(User)
@@ -24,10 +24,17 @@ class IngredientAdmin(admin.ModelAdmin):
 
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'name', 'color', 'slug')
+    list_display = ('name', 'color', 'slug')
 
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'author', 'name', 'image', 'text', 'cooking_time')
-    search_fields = ('author', 'name', 'text', 'cooking_time')
+    list_display = ('name', 'author',)
+    search_fields = ('author', 'name', 'text')
+    list_filter = ('author', 'name', 'tags')
+    filter_horizontal = ('tags',)
+
+
+@admin.register(IngredientInRecipe)
+class IngredientInRecipeAdmin(admin.ModelAdmin):
+    list_display = ('recipe', 'ingredient', 'amount')
