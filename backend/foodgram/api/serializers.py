@@ -53,9 +53,15 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 
 class TagSerializer(serializers.ModelSerializer):
+    color = serializers.SerializerMethodField()
+
     class Meta:
         model = Tag
         fields = '__all__'
+    
+    def get_color(self, obj):
+        value = hex(obj.color)[2:].upper()
+        return '#' + '0'*(6-len(value)) + value
 
 
 class RecipeSerializer(serializers.ModelSerializer):

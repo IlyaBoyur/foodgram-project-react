@@ -158,7 +158,8 @@ def test_tags_by_id(setup_tag, guest_client):
     response = guest_client.get(TAGS_DETAIL_URL, format='json')
     assert response.data['id'] == setup_tag.id
     assert  response.data['name'] == setup_tag.name
-    assert response.data['color'] == setup_tag.color
+    value = hex(setup_tag.color)[2:].upper()
+    assert response.data['color'] == '#' + '0'*(6-len(value)) + value
     assert response.data['slug'] == setup_tag.slug
 
 
