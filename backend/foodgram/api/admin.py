@@ -27,9 +27,14 @@ class TagAdmin(admin.ModelAdmin):
     list_display = ('name', 'color', 'slug')
 
 
+class IngredientInlineAdmin(admin.TabularInline):
+    model = IngredientInRecipe
+
+
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     list_display = ('name', 'author',)
+    inlines = (IngredientInlineAdmin,)
     search_fields = ('author', 'name', 'text')
     list_filter = ('author', 'name', 'tags')
     filter_horizontal = ('tags',)
