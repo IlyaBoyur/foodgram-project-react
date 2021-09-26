@@ -1,5 +1,5 @@
 import pytest
-from api.models import Recipe, Ingredient, Tag, Subscription
+from api.models import IngredientInRecipe, Recipe, Ingredient, Tag, Subscription
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 
@@ -94,6 +94,15 @@ def setup_recipe(setup_user, setup_ingredient, setup_tag):
     recipe.ingredients.add(setup_ingredient,
                            through_defaults={'amount': INGREDIENT_AMOUNT})
     return recipe
+
+
+@pytest.fixture()
+def setup_ingredient_in_recipe(setup_recipe, setup_ingredient):
+    return IngredientInRecipe.objects.create(
+        ingredient=setup_ingredient,
+        recipe=setup_recipe,
+        amount=INGREDIENT_AMOUNT,
+    )
 
 
 @pytest.fixture()
