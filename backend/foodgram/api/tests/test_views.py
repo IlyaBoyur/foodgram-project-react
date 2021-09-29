@@ -233,13 +233,13 @@ def test_recipes_shopping_cart(user_client, setup_recipe):
         )
     )
 
-def test_recipes_shopping_cart_add_twice(user_client, setup_recipe):
+def test_recipes_shopping_cart_add_twice(user_client_recipe_in_cart,
+                                         setup_recipe):
     """Нельзя добавить Рецепт в корзину повторно."""
     RECIPES_SHOPPING_CART = reverse('recipes-shopping-cart',
                                     args=[setup_recipe.id])
-    user_client.get(RECIPES_SHOPPING_CART)
     assert (
-        user_client.get(RECIPES_SHOPPING_CART).status_code
+        user_client_recipe_in_cart.get(RECIPES_SHOPPING_CART).status_code
         == status.HTTP_400_BAD_REQUEST
     )
 
