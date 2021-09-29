@@ -124,3 +124,13 @@ def user_client_other(setup_user_other, db):
     client = APIClient()
     client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
     return client
+
+
+@pytest.fixture()
+def user_client_recipe_in_cart(setup_user, setup_recipe, db):
+    client = APIClient()
+    client.force_authenticate(user=setup_user)
+    setup_user.shopping_cart_recipes.add(setup_recipe)
+    return client
+
+
