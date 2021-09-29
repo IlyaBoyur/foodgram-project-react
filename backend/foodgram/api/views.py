@@ -1,15 +1,22 @@
 from django.contrib.auth import get_user_model
-from django.db.models import When, Case, Value
+from django.db.models import Count, Q, Value
 from django.db.models.fields import BooleanField
+from django.db.models.functions import Cast
 from django.shortcuts import get_object_or_404
-from api.paginators import PageLimitPagination
-from rest_framework import status
+from django_filters.rest_framework import DjangoFilterBackend
+from djoser import views as djoser_views
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from djoser import views as djoser_views
-from rest_framework import viewsets
-from api.models import Ingredient, Tag, Recipe
-from api.serializers import IngredientSerializer, TagSerializer, RecipeSerializer
+from django.http import HttpResponse, request
+from api.filters import IngredientFilter, RecipeFilter
+from api.models import Ingredient, Recipe, Subscription, Tag
+from api.paginators import PageLimitPagination
+from api.serializers import (IngredientSerializer, RecipeSerializer, RecipePartialSerializer, UserSubscribeSerializer,
+                             TagSerializer)
+from rest_framework.permissions import IsAuthenticated
+from wsgiref.util import FileWrapper
+from foodgram.settings import SHOPPING_CART_DIR
 
 
 ERROR_RECIPE_IN_SHOPPING_CART = 'Рецепт {recipe} уже в корзине.'
@@ -115,6 +122,24 @@ class RecipeViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
 
+    def get_queryset(self):
+        return (
+            Recipe.objects.annotate(
+            is_favorited=Cast(
+                Count('users_have_in_favorite',
+                      filter=Q(users_have_in_favorite=self.request.user)),
+                output_field=BooleanField()),
+            is_in_shopping_cart=Cast(
+                Count('users_have_in_shopping_cart',
+                      filter=Q(users_have_in_shopping_cart=self.request.user)),
+                output_field=BooleanField())
+            ).select_related('author').prefetch_related('tags','ingredients')
+            if not self.request.user.is_anonymous
+            else Recipe.objects.annotate(
+            is_favorited=Value(False, output_field=BooleanField()),
+            is_in_shopping_cart=Value(False, output_field=BooleanField()),
+            ).select_related('author').prefetch_related('tags','ingredients')
+        )
     @action(('get',), detail=True,
             permission_classes=[IsAuthenticated])
     def shopping_cart(self, request, *args, **kwargs):

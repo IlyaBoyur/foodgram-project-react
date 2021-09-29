@@ -69,14 +69,27 @@ def test_tags_url_exists_at_desired_location(guest_client,
 
 
 @pytest.mark.django_db
-def test_recipes_url_exists_at_desired_location(guest_client, 
+def test_recipes_url_exists_at_desired_location(guest_client,
+                                                user_client,
                                                 setup_recipe,
                                                 subtests):
     """Страницы возвращают ожидаемый код ответа соответствующему клиенту."""
     RECIPES_DETAIL_URL = reverse('recipes-detail', args=[setup_recipe.id])
+    RECIPES_SHOPPING_CART = reverse('recipes-shopping-cart',
+                                    args=[setup_recipe.id])
+    RECIPES_NON_EXISTS_SHOPPING_CART = reverse('recipes-shopping-cart',
+                                               args=[100500])
+    RECIPES_FAVORITE = reverse('recipes-favorite',
+                               args=[setup_recipe.id])
+    RECIPES_NON_EXISTS_FAVORITE = reverse('recipes-favorite',
+                                          args=[100500])
     urls = [
         [RECIPES_URL, guest_client, 200],
         [RECIPES_DETAIL_URL, guest_client, 200],
+        [RECIPES_SHOPPING_CART, user_client, 201],
+        [RECIPES_NON_EXISTS_SHOPPING_CART, user_client, 404],
+        [RECIPES_FAVORITE, user_client, 201],
+        [RECIPES_NON_EXISTS_FAVORITE, user_client, 404],
     ]
     for url, client, response_code in urls:
         with subtests.test(url=url):
