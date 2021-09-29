@@ -15,73 +15,69 @@ RECIPES_URL = reverse('recipes-list')
 @pytest.mark.django_db
 def test_users_url_exists_at_desired_location(guest_client, user_client,
                                               setup_user, subtests):
-        """Страницы возвращают ожидаемый код ответа
-        соответствующему клиенту."""
-        USERS_DETAIL_URL = reverse('users-detail',
-                                   args=[setup_user.id])
-        USERS_DETAIL_NON_EXISTS_URL = reverse('users-detail',
-                                              args=[100])
-        urls = [
-            [USERS_URL, guest_client, 200],
-            [USERS_URL, user_client, 200],
-            [USERS_DETAIL_URL, guest_client, 401],
-            [USERS_DETAIL_URL, user_client, 200],
-            [USERS_DETAIL_NON_EXISTS_URL, guest_client, 401],
-            [USERS_DETAIL_NON_EXISTS_URL, user_client, 404],
-            [USERS_ME_URL, guest_client, 401],
-            [USERS_ME_URL, user_client, 200],
-        ]
-        for url, client, response_code in urls:
-            with subtests.test(url=url):
-                assert client.get(url).status_code == response_code
+    """Страницы возвращают ожидаемый код ответа соответствующему клиенту."""
+    USERS_DETAIL_URL = reverse('users-detail',
+                                args=[setup_user.id])
+    USERS_DETAIL_NON_EXISTS_URL = reverse('users-detail',
+                                            args=[100])
+    urls = [
+        [USERS_URL, guest_client, 200],
+        [USERS_URL, user_client, 200],
+        [USERS_DETAIL_URL, guest_client, 401],
+        [USERS_DETAIL_URL, user_client, 200],
+        [USERS_DETAIL_NON_EXISTS_URL, guest_client, 401],
+        [USERS_DETAIL_NON_EXISTS_URL, user_client, 404],
+        [USERS_ME_URL, guest_client, 401],
+        [USERS_ME_URL, user_client, 200],
+    ]
+    for url, client, response_code in urls:
+        with subtests.test(url=url):
+            assert client.get(url).status_code == response_code
 
 
 @pytest.mark.django_db
 def test_ingredients_url_exists_at_desired_location(guest_client, 
                                                     setup_ingredient,
                                                     subtests):
-        """Страницы возвращают ожидаемый код ответа
-        соответствующему клиенту."""
-        INGREDIENTS_DETAIL_URL = reverse('ingredients-detail',
-                                         args=[setup_ingredient.id])
-        urls = [
-            [INGREDIENTS_URL, guest_client, 200],
-            [INGREDIENTS_DETAIL_URL, guest_client, 200],
-        ]
-        for url, client, response_code in urls:
-            with subtests.test(url=url):
-                assert client.get(url).status_code == response_code
+    """Страницы возвращают ожидаемый код ответа соответствующему клиенту."""
+    INGREDIENTS_DETAIL_URL = reverse('ingredients-detail',
+                                        args=[setup_ingredient.id])
+    urls = [
+        [INGREDIENTS_URL, guest_client, 200],
+        [INGREDIENTS_DETAIL_URL, guest_client, 200],
+    ]
+    for url, client, response_code in urls:
+        with subtests.test(url=url):
+            assert client.get(url).status_code == response_code
 
 
 @pytest.mark.django_db
 def test_tags_url_exists_at_desired_location(guest_client, 
                                              setup_tag,
                                              subtests):
-        """Страницы возвращают ожидаемый код ответа
-        соответствующему клиенту."""
-        TAGS_DETAIL_URL = reverse('tags-detail', args=[setup_tag.id])
-        TAGS_DETAIL_NON_EXISTS_URL = reverse('tags-detail', args=[100500])
-        urls = [
-            [TAGS_URL, guest_client, 200],
-            [TAGS_DETAIL_URL, guest_client, 200],
-            [TAGS_DETAIL_NON_EXISTS_URL, guest_client, 404],
-        ]
-        for url, client, response_code in urls:
-            with subtests.test(url=url):
-                assert client.get(url).status_code == response_code
+    """Страницы возвращают ожидаемый код ответа соответствующему клиенту."""
+    TAGS_DETAIL_URL = reverse('tags-detail', args=[setup_tag.id])
+    TAGS_DETAIL_NON_EXISTS_URL = reverse('tags-detail', args=[100500])
+    urls = [
+        [TAGS_URL, guest_client, 200],
+        [TAGS_DETAIL_URL, guest_client, 200],
+        [TAGS_DETAIL_NON_EXISTS_URL, guest_client, 404],
+    ]
+    for url, client, response_code in urls:
+        with subtests.test(url=url):
+            assert client.get(url).status_code == response_code
 
 
 @pytest.mark.django_db
-def test_tags_url_exists_at_desired_location(guest_client, 
-                                             setup_recipe,
-                                             subtests):
-        """Страницы возвращают ожидаемый код ответа
-        соответствующему клиенту."""
-        RECIPES_DETAIL_URL = reverse('recipes-detail', args=[setup_recipe.id])
-        urls = [
-            [RECIPES_URL, guest_client, 200],
-            [RECIPES_DETAIL_URL, guest_client, 200],
-        ]
-        for url, client, response_code in urls:
-            with subtests.test(url=url):
-                assert client.get(url).status_code == response_code
+def test_recipes_url_exists_at_desired_location(guest_client, 
+                                                setup_recipe,
+                                                subtests):
+    """Страницы возвращают ожидаемый код ответа соответствующему клиенту."""
+    RECIPES_DETAIL_URL = reverse('recipes-detail', args=[setup_recipe.id])
+    urls = [
+        [RECIPES_URL, guest_client, 200],
+        [RECIPES_DETAIL_URL, guest_client, 200],
+    ]
+    for url, client, response_code in urls:
+        with subtests.test(url=url):
+            assert client.get(url).status_code == response_code
