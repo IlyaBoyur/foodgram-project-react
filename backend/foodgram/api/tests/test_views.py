@@ -216,6 +216,7 @@ def test_subscriptions_unsubscribe_twice(setup_user):
     )
 
 
+# Recipes
 def test_recipes_favorite(user_client, setup_recipe):
     """Авторизованный пользователь может добавить Рецепт в избранное."""
     RECIPES_FAVORITE = reverse('recipes-favorite',
