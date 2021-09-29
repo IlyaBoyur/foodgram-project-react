@@ -134,3 +134,9 @@ def user_client_recipe_in_cart(setup_user, setup_recipe, db):
     return client
 
 
+@pytest.fixture()
+def user_client_recipe_in_favorite(setup_user, setup_recipe, db):
+    client = APIClient()
+    client.force_authenticate(user=setup_user)
+    setup_user.favorite_recipes.add(setup_recipe)
+    return client

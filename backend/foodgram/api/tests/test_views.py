@@ -18,6 +18,12 @@ TAGS_URL = reverse('tags-list')
 
 
 # Users
+def get_user_by_client(client):
+    return Token.objects.get(
+        key=client._credentials['HTTP_AUTHORIZATION'][6:]
+    ).user
+
+
 def assert_user_schema(schema, user, is_registration=False):
     assert schema['id'] == user.id
     assert schema['email'] == user.email
@@ -170,6 +176,50 @@ def test_tags_by_id_non_exists(guest_client):
     response = guest_client.get(TAGS_DETAIL_NON_EXISTS_URL, format='json')
     assert response.data.get('detail') is not None
 
+
+def test_recipes_favorite(user_client, setup_recipe):
+    """Авторизованный пользователь может добавить Рецепт в избранное."""
+    RECIPES_FAVORITE = reverse('recipes-favorite',
+                               args=[setup_recipe.id])
+    assert (
+        user_client.get(RECIPES_FAVORITE).data['id']
+        in get_user_by_client(user_client).favorite_recipes.values_list(
+            'id',
+            flat=True,
+        )
+    )
+
+
+def test_recipes_favorite_delete(user_client_recipe_in_favorite,
+                                      setup_recipe):
+    """Авторизованный пользователь может удалить Рецепт из избранного."""
+    RECIPES_FAVORITE = reverse('recipes-favorite',
+                               args=[setup_recipe.id])
+    assert (
+        user_client_recipe_in_favorite.delete(RECIPES_FAVORITE).status_code
+        == status.HTTP_204_NO_CONTENT
+    )
+
+
+def test_recipes_favorite_add_twice(user_client_recipe_in_favorite,
+                                    setup_recipe):
+    """Рецепт нельзя добавить Рецепт в избранное повторно."""
+    RECIPES_FAVORITE = reverse('recipes-favorite',
+                               args=[setup_recipe.id])
+    assert (
+        user_client_recipe_in_favorite.get(RECIPES_FAVORITE).status_code
+        == status.HTTP_400_BAD_REQUEST
+    )
+
+
+def test_recipes_favorite_delete_twice(user_client, setup_recipe):
+    """Рецепт нельзя удалить Рецепт из избранного, если его там нет."""
+    RECIPES_FAVORITE = reverse('recipes-favorite',
+                               args=[setup_recipe.id])
+    assert (
+        user_client.delete(RECIPES_FAVORITE).status_code
+        == status.HTTP_400_BAD_REQUEST
+    )
 
 def test_recipes_shopping_cart(user_client, setup_recipe):
     """Авторизованный пользователь может добавить Рецепт в корзину."""

@@ -96,3 +96,27 @@ class RecipeViewSet(viewsets.ModelViewSet):
             )
         request.user.shopping_cart_recipes.remove(recipe)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(('get',), detail=True,
+            permission_classes=[IsAuthenticated])
+    def favorite(self, request, *args, **kwargs):
+        recipe = get_object_or_404(Recipe, pk=kwargs.get('pk'))
+        if request.user.favorite_recipes.filter(pk=recipe.pk).exists():
+            return Response(
+                data={'errors': ERROR_RECIPE_IN_FAVORITE.format(recipe=recipe)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        request.user.favorite_recipes.add(recipe)
+        return Response(self.get_serializer(recipe).data,
+                        status=status.HTTP_201_CREATED)
+
+    @favorite.mapping.delete
+    def delete_from_favorite(self, request, *args, **kwargs):
+        recipe = get_object_or_404(Recipe, pk=kwargs.get('pk'))
+        if not request.user.favorite_recipes.filter(pk=recipe.pk).exists():
+            return Response(
+                data={'errors': ERROR_RECIPE_NOT_IN_FAVORITE.format(recipe=recipe)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        request.user.favorite_recipes.remove(recipe)
+        return Response(status=status.HTTP_204_NO_CONTENT)
