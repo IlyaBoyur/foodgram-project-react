@@ -73,3 +73,26 @@ class RecipeViewSet(viewsets.ModelViewSet):
     pagination_class = PageLimitPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
+
+    @action(('get',), detail=True,
+            permission_classes=[IsAuthenticated])
+    def shopping_cart(self, request, *args, **kwargs):
+        recipe = get_object_or_404(Recipe, pk=kwargs.get('pk'))
+        if request.user.shopping_cart_recipes.filter(pk=recipe.pk).exists():
+            return Response(
+                data={'errors': ERROR_RECIPE_IN_SHOPPING_CART.format(recipe=recipe)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        request.user.shopping_cart_recipes.add(recipe)
+        return Response(self.get_serializer(recipe).data)
+
+    @shopping_cart.mapping.delete
+    def delete_from_shopping_cart(self, request, *args, **kwargs):
+        recipe = get_object_or_404(Recipe, pk=kwargs.get('pk'))
+        if not request.user.shopping_cart_recipes.filter(pk=recipe.pk).exists():
+            return Response(
+                data={'errors': ERROR_RECIPE_NOT_IN_SHOPPING_CART.format(recipe=recipe)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        request.user.shopping_cart_recipes.remove(recipe)
+        return Response(status=status.HTTP_204_NO_CONTENT)

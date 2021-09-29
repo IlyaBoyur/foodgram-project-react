@@ -170,3 +170,45 @@ def test_tags_by_id_non_exists(guest_client):
     assert response.data.get('detail') is not None
 
 
+def test_recipes_shopping_cart(user_client, setup_recipe):
+    """Авторизованный пользователь может добавить Рецепт в корзину."""
+    RECIPES_SHOPPING_CART = reverse('recipes-shopping-cart',
+                                    args=[setup_recipe.id])
+    assert (
+        user_client.get(RECIPES_SHOPPING_CART, format='json').data['id']
+        in get_user_by_client(user_client).shopping_cart_recipes.values_list(
+            'id',
+            flat=True
+        )
+    )
+
+def test_recipes_shopping_cart_add_twice(user_client, setup_recipe):
+    """Нельзя добавить Рецепт в корзину повторно."""
+    RECIPES_SHOPPING_CART = reverse('recipes-shopping-cart',
+                                    args=[setup_recipe.id])
+    user_client.get(RECIPES_SHOPPING_CART)
+    assert (
+        user_client.get(RECIPES_SHOPPING_CART).status_code
+        == status.HTTP_400_BAD_REQUEST
+    )
+
+
+def test_recipes_shopping_cart_delete(user_client_recipe_in_cart,
+                                      setup_recipe):
+    """Авторизованный пользователь может удалить Рецепт из корзины."""
+    RECIPES_SHOPPING_CART = reverse('recipes-shopping-cart',
+                                    args=[setup_recipe.id])
+    assert (
+        user_client_recipe_in_cart.delete(RECIPES_SHOPPING_CART).status_code
+        == status.HTTP_204_NO_CONTENT
+    )
+
+
+def test_recipes_shopping_cart_delete_twice(user_client, setup_recipe):
+    """Нельзя удалить Рецепт из корзины, если его там нет."""
+    RECIPES_SHOPPING_CART = reverse('recipes-shopping-cart',
+                                    args=[setup_recipe.id])
+    assert (
+        user_client.delete(RECIPES_SHOPPING_CART).status_code
+        == status.HTTP_400_BAD_REQUEST
+    )
