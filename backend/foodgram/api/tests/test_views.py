@@ -84,8 +84,7 @@ def test_users_me(setup_user, guest_client):
 
 
 @pytest.mark.django_db
-def test_users_registered_guest_can_login(setup_user, user_credentials,
-                                          guest_client):
+def test_users_registered_guest_can_login(guest_client, user_credentials):
     """Запрос на авторизацию возвращает ожидаемые данные."""
     response = guest_client.post(TOKEN_LOGIN_URL,
                                  {
@@ -94,8 +93,8 @@ def test_users_registered_guest_can_login(setup_user, user_credentials,
                                  },
                                  format='json')
     assert response.status_code == status.HTTP_201_CREATED
-    assert response.data["auth_token"] == (
-        Token.objects.get(user=setup_user).key
+    assert Token.objects.get(key=response.data["auth_token"]).user.email == (
+        user_credentials['email']
     )
 
     
