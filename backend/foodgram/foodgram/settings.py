@@ -140,3 +140,5 @@ DJOSER = {
     },
     'HIDE_USERS': False,
 }
+
+SHOPPING_CART_DIR = os.path.join(BASE_DIR, 'carts/')
