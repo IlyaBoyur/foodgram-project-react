@@ -3,6 +3,7 @@ from rest_framework import status
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from rest_framework.authtoken.models import Token
+from rest_framework.test import APIClient
 from api.models import Ingredient, Tag
 
 
@@ -175,6 +176,44 @@ def test_tags_by_id_non_exists(guest_client):
     TAGS_DETAIL_NON_EXISTS_URL = reverse('tags-detail', args=[100500])
     response = guest_client.get(TAGS_DETAIL_NON_EXISTS_URL, format='json')
     assert response.data.get('detail') is not None
+
+
+# Subscriptions
+def test_subscriptions_subscribe(user_client, setup_user_other):
+    """Авторизованный пользователь может подписаться на любого пользователя."""
+    USERS_ID_SUBSCRIBE_URL = reverse('users-subscribe',
+                                     args=[setup_user_other.id])
+    user_client.get(USERS_ID_SUBSCRIBE_URL)
+    assert setup_user_other.id in (
+        get_user_by_client(user_client).subscribed_to.values_list('author_id',
+                                                                  flat=True)
+    )
+
+
+def test_subscriptions_self_subscribe(setup_user):
+    """Нельзя подписаться на самого себя."""
+    USERS_ID_SUBSCRIBE_URL = reverse('users-subscribe',
+                                     args=[setup_user.id])
+    client = APIClient()
+    client.force_authenticate(user=setup_user)
+    assert client.get(USERS_ID_SUBSCRIBE_URL).status_code == (
+        status.HTTP_400_BAD_REQUEST
+    )
+     
+
+def test_subscriptions_subscribe_twice():
+    """Нельзя подписаться повторно."""
+
+
+def test_subscriptions_unsubscribe_twice(setup_user):
+    """Нельзя отписаться, если подписки нет."""
+    USERS_ID_SUBSCRIBE_URL = reverse('users-subscribe',
+                                     args=[setup_user.id])
+    client = APIClient()
+    client.force_authenticate(user=setup_user)
+    assert client.delete(USERS_ID_SUBSCRIBE_URL).status_code == (
+        status.HTTP_400_BAD_REQUEST
+    )
 
 
 def test_recipes_favorite(user_client, setup_recipe):

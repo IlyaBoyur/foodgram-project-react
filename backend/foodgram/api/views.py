@@ -40,6 +40,40 @@ class UserViewSet(djoser_views.UserViewSet):
             ).data
         )
 
+    @action(('get',), detail=True,
+            permission_classes=[IsAuthenticated])
+    def subscribe(self, request, *args, **kwargs):
+        author = get_object_or_404(User, id=kwargs.get('id'))
+        if request.user==author:
+            return Response(
+                data={'errors': ERROR_SUBSCRIBE_SELF},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if request.user.subscribed_to.filter(author=author).exists():
+            return Response(
+                data={'errors': ERROR_SUBSCRIBE_AGAIN.format(author=author)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        Subscription.objects.create(author=author, subscriber=request.user)
+        return Response(
+            self.get_serializer(author).data,
+            status=status.HTTP_201_CREATED,
+        )
+
+    @subscribe.mapping.delete
+    def delete_subscription(self, request, *args, **kwargs):
+        author = get_object_or_404(User, id=kwargs.get('id'))
+        if not request.user.subscribed_to.filter(author=author).exists():
+            return Response(
+                data={'errors': ERROR_UNSUBSCRIBE_AGAIN.format(author=author)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        Subscription.objects.filter(
+            subscriber=request.user,
+            author=author,
+        ).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class TokenCreateView(djoser_views.TokenCreateView):
     def _action(self, serializer):
