@@ -187,3 +187,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
             )
         request.user.favorite_recipes.remove(recipe)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def get_serializer_class(self):
+        if self.action in ('shopping_cart', 'favorite'):
+            return RecipePartialSerializer
+        return RecipeSerializer
