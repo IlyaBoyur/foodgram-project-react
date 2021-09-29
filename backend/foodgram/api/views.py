@@ -64,6 +64,21 @@ class UserViewSet(djoser_views.UserViewSet):
             ).data
         )
 
+    @action(('get',), detail=False,
+            permission_classes=[IsAuthenticated])
+    def subscriptions(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(
+            self.get_queryset().filter(
+                id__in=request.user.subscribed_to.values('author_id')
+            )
+        )
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            return self.get_paginated_response(
+                self.get_serializer(page, many=True).data
+            )
+        return Response(self.get_serializer(queryset, many=True).data)
+
     @action(('get',), detail=True,
             permission_classes=[IsAuthenticated])
     def subscribe(self, request, *args, **kwargs):
