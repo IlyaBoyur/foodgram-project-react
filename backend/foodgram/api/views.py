@@ -12,6 +12,13 @@ from api.models import Ingredient, Tag, Recipe
 from api.serializers import IngredientSerializer, TagSerializer, RecipeSerializer
 
 
+ERROR_RECIPE_IN_SHOPPING_CART = 'Рецепт {recipe} уже в корзине.'
+ERROR_RECIPE_NOT_IN_SHOPPING_CART = 'Рецепта {recipe} нет в корзине.'
+ERROR_RECIPE_IN_FAVORITE = 'Рецепт {recipe} уже в избранном.'
+ERROR_RECIPE_NOT_IN_FAVORITE = 'Рецепта {recipe} нет в избранном.'
+ERROR_SUBSCRIBE_SELF = 'Невозможно подписаться на самого себя.'
+ERROR_SUBSCRIBE_AGAIN = 'Вы уже подписаны на {author}.'
+ERROR_UNSUBSCRIBE_AGAIN = 'Вы не подписаны на {author}.'
 User = get_user_model()
 
 
@@ -118,7 +125,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
         request.user.shopping_cart_recipes.add(recipe)
-        return Response(self.get_serializer(recipe).data)
+        return Response(self.get_serializer(recipe).data,
+                        status=status.HTTP_201_CREATED)
 
     @shopping_cart.mapping.delete
     def delete_from_shopping_cart(self, request, *args, **kwargs):
