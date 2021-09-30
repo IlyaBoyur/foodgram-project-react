@@ -54,6 +54,11 @@ class UserViewSet(djoser_views.UserViewSet):
             output_field=BooleanField()
         ))
         )
+    
+    def get_serializer_class(self):
+        if self.action in ('subscriptions', 'subscribe'):
+            return UserSubscribeSerializer
+        return super().get_serializer_class()
 
     @action(["get"], detail=False)
     def me(self, request, *args, **kwargs):
