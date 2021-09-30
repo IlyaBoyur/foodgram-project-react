@@ -40,7 +40,7 @@ User = get_user_model()
 
 
 class UserViewSet(djoser_views.UserViewSet):
-    http_method_names = ['get', 'post']
+    http_method_names = ['get', 'post', 'delete']
     pagination_class = PageLimitPagination
 
     def get_queryset(self):
@@ -63,6 +63,10 @@ class UserViewSet(djoser_views.UserViewSet):
                                   id=request.user.id)
             ).data
         )
+
+    def destroy(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
 
     @action(('get',), detail=False,
             permission_classes=[IsAuthenticated])
