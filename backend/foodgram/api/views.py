@@ -44,11 +44,11 @@ class UserViewSet(djoser_views.UserViewSet):
     pagination_class = PageLimitPagination
 
     def get_queryset(self):
-        return (super().get_queryset().annotate(is_subscribed=Case(
-            When(id__in=self.request.user.subscribed_to.values('author_id'),
-                 then=True),
-            default=False
-        )) if not self.request.user.is_anonymous
+        return (super().get_queryset().annotate(is_subscribed=Cast(
+            Count('subscribers',
+                  filter=Q(subscribers__subscriber=self.request.user)),
+            output_field=BooleanField())
+        ) if self.request.user.is_authenticated
         else super().get_queryset().annotate(is_subscribed=Value(
             False,
             output_field=BooleanField()
@@ -59,8 +59,7 @@ class UserViewSet(djoser_views.UserViewSet):
     def me(self, request, *args, **kwargs):
         return Response(
             self.get_serializer(
-                get_object_or_404(self.get_queryset(),
-                                  id=request.user.id)
+                get_object_or_404(self.get_queryset(), id=request.user.id)
             ).data
         )
 
@@ -161,7 +160,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                       filter=Q(users_have_in_shopping_cart=self.request.user)),
                 output_field=BooleanField())
             ).select_related('author').prefetch_related('tags','ingredients')
-            if not self.request.user.is_anonymous
+            if self.request.user.is_authenticated
             else Recipe.objects.annotate(
             is_favorited=Value(False, output_field=BooleanField()),
             is_in_shopping_cart=Value(False, output_field=BooleanField()),
