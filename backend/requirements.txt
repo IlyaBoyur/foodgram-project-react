@@ -7,3 +7,5 @@ django-filter==21.1
 djangorestframework==3.12.4
 djoser==2.1.0
 tqdm==4.62.3
+wheel==0.37.0
+fpdf==1.7.2
