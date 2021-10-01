@@ -96,6 +96,7 @@ def test_recipe_verbose_names(setup_recipe):
         'text': 'Описание',
         'cooking_time': 'Время приготовления (в минутах)',
         'ingredients': 'Список ингредиентов',
+        'pub_date': 'Дата публикации',
     }
     verbose_name = 'Рецепт'
     verbose_name_plural = 'Рецепты'
