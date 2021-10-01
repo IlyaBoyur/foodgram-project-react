@@ -22,6 +22,8 @@ from api.serializers import (
 from rest_framework.permissions import IsAuthenticated
 from wsgiref.util import FileWrapper
 from foodgram.settings import SHOPPING_CART_DIR
+from .permissions import IsAuthorOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 
 ERROR_RECIPE_IN_SHOPPING_CART = 'Рецепт {recipe} уже в корзине.'
@@ -154,6 +156,7 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
+    permission_classes = (IsAuthorOrReadOnly, IsAuthenticatedOrReadOnly)
     pagination_class = PageLimitPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
