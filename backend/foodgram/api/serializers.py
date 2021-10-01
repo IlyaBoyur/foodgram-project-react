@@ -64,11 +64,8 @@ class RecipeReadSerializer(serializers.ModelSerializer):
                                                many=True)
     is_favorited = serializers.BooleanField()
     is_in_shopping_cart = serializers.BooleanField()
-    image = serializers.SerializerMethodField()
+    image = serializers.ImageField(use_url=True)
 
-    def get_image(self, value):
-        return self.context['request'].build_absolute_uri(value.image.url)
-    
     class Meta:
         model = Recipe
         fields = '__all__'
