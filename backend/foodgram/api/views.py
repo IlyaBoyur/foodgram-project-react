@@ -277,6 +277,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def get_serializer_class(self):
-        if self.action in ('shopping_cart', 'favorite'):
+        if self.action in ('create',  'update'):
+            return RecipeWriteSerializer
+        elif self.action in ('shopping_cart', 'favorite'):
             return RecipeReadPartialSerializer
         return RecipeReadSerializer

@@ -3,8 +3,12 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 from django.core import exceptions as django_exceptions
+from . import fields
 
 User = get_user_model()
+
+VALIDATION_ERROR_TAGS = 'Проверьте правильность выбора тэгов.'
+VALIDATION_ERROR_INGREDIENTS = 'Проверьте правильность выбора ингредиентов.'
 
 
 class UserReadSerializer(serializers.ModelSerializer):
@@ -29,6 +33,15 @@ class IngredientInRecipeSerializer(serializers.ModelSerializer):
     class Meta:
         model = IngredientInRecipe
         fields = ('id','name','measurement_unit','amount')
+
+
+class IngredientInRecipeWriteSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(min_value=0)
+    amount = serializers.IntegerField(min_value=1)
+
+    class Meta:
+        model = IngredientInRecipe
+        fields = ('id', 'amount')
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -65,6 +78,47 @@ class RecipeReadPartialSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
+
+
+class RecipeWriteSerializer(serializers.ModelSerializer):
+    ingredients = IngredientInRecipeWriteSerializer(many=True)
+    tags = serializers.ListField(child=serializers.IntegerField(min_value=0))
+    image = fields.Base64ImageField()
+    author = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(),
+        default=serializers.CurrentUserDefault(),
+    )
+
+    class Meta:
+        model = Recipe
+        fields = '__all__'
+
+    def validate_ingredients(self, value):
+        ids = [ingredient['id'] for ingredient in value]
+        if Ingredient.objects.filter(id__in=ids).count() < len(value):
+            raise serializers.ValidationError(VALIDATION_ERROR_INGREDIENTS)
+        return value
+
+    def validate_tags(self, value):
+        if Tag.objects.filter(id__in=value).count() < len(value):
+            raise serializers.ValidationError(VALIDATION_ERROR_TAGS)
+        return value
+
+    def create(self, validated_data):
+        recipe = Recipe.objects.create(
+            **dict((key, validated_data[key])
+                   for key in validated_data
+                   if key not in ('ingredients', 'tags'))
+        )
+        # Ingredients
+        for ingredient, amount in (
+            (ingredient['id'], {'amount': ingredient['amount']})
+            for ingredient in validated_data['ingredients']
+        ):
+            recipe.ingredients.add(ingredient, through_defaults=amount)
+        # Tags
+        recipe.tags.add(*validated_data['tags'])
+        return recipe
 
 
 class UserSubscribeSerializer(serializers.ModelSerializer):
