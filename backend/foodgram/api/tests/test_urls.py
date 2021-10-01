@@ -1,6 +1,5 @@
-from django.urls import reverse
 import pytest
-
+from django.urls import reverse
 
 TOKEN_LOGIN_URL = reverse('token_login')
 TOKEN_LOGOUT_URL = reverse('token_logout')
