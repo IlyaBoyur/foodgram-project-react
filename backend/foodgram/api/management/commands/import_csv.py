@@ -1,7 +1,7 @@
 import csv
 
 import django.db.utils
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 
 from api.models import Ingredient
 from tqdm import tqdm
@@ -29,7 +29,7 @@ class Command(BaseCommand):
                     except django.db.utils.IntegrityError:
                         self.stdout.write(self.style.ERROR(
                             f'Unable to create {Model.__name__}'
-                            f' from {file} with values: {*row.values(),}' 
+                            f' from {file} with values: {*row.values(),}'
                         ))
                         total -= 1
                 self.stdout.write(self.style.SUCCESS(

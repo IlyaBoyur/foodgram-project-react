@@ -1,9 +1,8 @@
-from api.models import Ingredient, Recipe, Tag, IngredientInRecipe
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
-from django.contrib.auth.password_validation import validate_password
-from django.core import exceptions as django_exceptions
+
 from . import fields
+from .models import Ingredient, IngredientInRecipe, Recipe, Tag
 
 User = get_user_model()
 
@@ -28,11 +27,13 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 class IngredientInRecipeSerializer(serializers.ModelSerializer):
     name = serializers.ReadOnlyField(source='ingredient.name')
-    measurement_unit = serializers.ReadOnlyField(source='ingredient.measurement_unit')
+    measurement_unit = serializers.ReadOnlyField(
+        source='ingredient.measurement_unit'
+    )
 
     class Meta:
         model = IngredientInRecipe
-        fields = ('id','name','measurement_unit','amount')
+        fields = ('id', 'name', 'measurement_unit', 'amount')
 
 
 class IngredientInRecipeWriteSerializer(serializers.ModelSerializer):
@@ -50,10 +51,10 @@ class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
         fields = '__all__'
-    
+
     def get_color(self, obj):
         value = hex(obj.color)[2:].upper()
-        return '#' + '0'*(6-len(value)) + value
+        return '#' + '0' * (6 - len(value)) + value
 
 
 class RecipeReadSerializer(serializers.ModelSerializer):
@@ -127,12 +128,12 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         # Tags
         instance.tags.clear()
         instance.tags.add(*validated_data['tags'])
-        return super().update(instance, dict((key, value)
-                   for key,value in validated_data.items()
-                   if key not in ('ingredients', 'tags')))
-        
-
-
+        return super().update(
+            instance,
+            dict((key, value)
+                 for key, value in validated_data.items()
+                 if key not in ('ingredients', 'tags')),
+        )
 
 
 class UserSubscribeSerializer(serializers.ModelSerializer):
@@ -154,9 +155,8 @@ class UserSubscribeSerializer(serializers.ModelSerializer):
             obj.recipes.all()[:self.get_recipe_count(obj)],
             many=True,
         ).data
-        
 
     class Meta:
         model = User
-        fields = ('email', 'id', 'username', 'first_name', 'last_name', 
+        fields = ('email', 'id', 'username', 'first_name', 'last_name',
                   'is_subscribed', 'recipes', 'recipe_count')

@@ -1,34 +1,31 @@
+from wsgiref.util import FileWrapper
+
 from django.contrib.auth import get_user_model
 from django.db.models import Count, Q, Value
 from django.db.models.fields import BooleanField
 from django.db.models.functions import Cast
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser import views as djoser_views
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
+from rest_framework.permissions import (IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
-from django.http import HttpResponse, request
-from api.filters import IngredientFilter, RecipeFilter
-from api.models import Ingredient, Recipe, Subscription, Tag
-from api.paginators import PageLimitPagination
-from api.serializers import (
-    IngredientSerializer,
-    RecipeReadSerializer,
-    RecipeReadPartialSerializer,
-    RecipeWriteSerializer,
-    UserSubscribeSerializer,
-    TagSerializer,
-)
-from rest_framework.permissions import IsAuthenticated
-from wsgiref.util import FileWrapper
+
 from foodgram.settings import SHOPPING_CART_DIR
+
+from .filters import IngredientFilter, RecipeFilter
+from .models import Ingredient, Recipe, Subscription, Tag
+from .paginators import PageLimitPagination
 from .permissions import IsAuthorOrReadOnly
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from .serializers import (IngredientSerializer, RecipeReadPartialSerializer,
+                          RecipeReadSerializer, RecipeWriteSerializer,
+                          TagSerializer, UserSubscribeSerializer)
 
-
-ERROR_RECIPE_IN_SHOPPING_CART = 'Рецепт {recipe} уже в корзине.'
-ERROR_RECIPE_NOT_IN_SHOPPING_CART = 'Рецепта {recipe} нет в корзине.'
+ERROR_RECIPE_IN_CART = 'Рецепт {recipe} уже в корзине.'
+ERROR_RECIPE_NOT_IN_CART = 'Рецепта {recipe} нет в корзине.'
 ERROR_RECIPE_IN_FAVORITE = 'Рецепт {recipe} уже в избранном.'
 ERROR_RECIPE_NOT_IN_FAVORITE = 'Рецепта {recipe} нет в избранном.'
 ERROR_SUBSCRIBE_SELF = 'Невозможно подписаться на самого себя.'
@@ -52,17 +49,18 @@ class UserViewSet(djoser_views.UserViewSet):
     pagination_class = PageLimitPagination
 
     def get_queryset(self):
-        return (super().get_queryset().annotate(is_subscribed=Cast(
-            Count('subscribers',
-                  filter=Q(subscribers__subscriber=self.request.user)),
-            output_field=BooleanField())
-        ) if self.request.user.is_authenticated
-        else super().get_queryset().annotate(is_subscribed=Value(
-            False,
-            output_field=BooleanField()
-        ))
+        return (
+            super().get_queryset().annotate(is_subscribed=Cast(
+                Count('subscribers',
+                      filter=Q(subscribers__subscriber=self.request.user)),
+                output_field=BooleanField()
+            )) if self.request.user.is_authenticated
+            else super().get_queryset().annotate(is_subscribed=Value(
+                False,
+                output_field=BooleanField()
+            ))
         )
-    
+
     def get_serializer_class(self):
         if self.action in ('subscriptions', 'subscribe'):
             return UserSubscribeSerializer
@@ -78,7 +76,6 @@ class UserViewSet(djoser_views.UserViewSet):
 
     def destroy(self, request, *args, **kwargs):
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
-
 
     @action(('get',), detail=False,
             permission_classes=[IsAuthenticated])
@@ -99,7 +96,7 @@ class UserViewSet(djoser_views.UserViewSet):
             permission_classes=[IsAuthenticated])
     def subscribe(self, request, *args, **kwargs):
         author = get_object_or_404(User, id=kwargs.get('id'))
-        if request.user==author:
+        if request.user == author:
             return Response(
                 data={'errors': ERROR_SUBSCRIBE_SELF},
                 status=status.HTTP_400_BAD_REQUEST,
@@ -165,20 +162,24 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return (
             Recipe.objects.annotate(
-            is_favorited=Cast(
-                Count('users_have_in_favorite',
-                      filter=Q(users_have_in_favorite=self.request.user)),
-                output_field=BooleanField()),
-            is_in_shopping_cart=Cast(
-                Count('users_have_in_shopping_cart',
-                      filter=Q(users_have_in_shopping_cart=self.request.user)),
-                output_field=BooleanField())
-            ).select_related('author').prefetch_related('tags','ingredients')
+                is_favorited=Cast(
+                    Count('users_have_in_favorite',
+                          filter=Q(users_have_in_favorite=self.request.user)),
+                    output_field=BooleanField()
+                ),
+                is_in_shopping_cart=Cast(
+                    Count('users_have_in_shopping_cart',
+                          filter=Q(
+                              users_have_in_shopping_cart=self.request.user
+                          )),
+                    output_field=BooleanField()
+                )
+            ).select_related('author').prefetch_related('tags', 'ingredients')
             if self.request.user.is_authenticated
             else Recipe.objects.annotate(
-            is_favorited=Value(False, output_field=BooleanField()),
-            is_in_shopping_cart=Value(False, output_field=BooleanField()),
-            ).select_related('author').prefetch_related('tags','ingredients')
+                is_favorited=Value(False, output_field=BooleanField()),
+                is_in_shopping_cart=Value(False, output_field=BooleanField()),
+            ).select_related('author').prefetch_related('tags', 'ingredients')
         )
 
     def create(self, request, *args, **kwargs):
@@ -193,11 +194,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
             ).data,
             status=status.HTTP_201_CREATED,
         )
-    
+
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer = self.get_serializer(instance,
+                                         data=request.data,
+                                         partial=partial)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
         return Response(
@@ -243,15 +246,16 @@ class RecipeViewSet(viewsets.ModelViewSet):
                     PDF_CELL_WIDTH,
                     PDF_CELL_HEGHT,
                     txt=PDF_INGREDIENT_LINE.format(name=name.capitalize(),
-                                                    unit=unit,
-                                                    amount=str(amount)),
+                                                   unit=unit,
+                                                   amount=str(amount)),
                     align=PDF_ALIGN_LEFT,
                 )
             pdf.output(pdf_name)
             return pdf_name
-        cart = open(create_shop_list(SHOPPING_CART_DIR
-                                     + f'{request.user.username}_cart.pdf'),
-                    'rb',
+        cart = open(
+            create_shop_list(SHOPPING_CART_DIR
+                             + f'{request.user.username}_cart.pdf'),
+            'rb',
         )
         return HttpResponse(
             FileWrapper(cart),
@@ -264,7 +268,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         recipe = get_object_or_404(Recipe, pk=kwargs.get('pk'))
         if request.user.shopping_cart_recipes.filter(pk=recipe.pk).exists():
             return Response(
-                data={'errors': ERROR_RECIPE_IN_SHOPPING_CART.format(recipe=recipe)},
+                data={'errors': ERROR_RECIPE_IN_CART.format(recipe=recipe)},
                 status=status.HTTP_400_BAD_REQUEST,
             )
         request.user.shopping_cart_recipes.add(recipe)
@@ -274,9 +278,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @shopping_cart.mapping.delete
     def delete_from_shopping_cart(self, request, *args, **kwargs):
         recipe = get_object_or_404(Recipe, pk=kwargs.get('pk'))
-        if not request.user.shopping_cart_recipes.filter(pk=recipe.pk).exists():
+        if not request.user.shopping_cart_recipes.filter(
+            pk=recipe.pk
+        ).exists():
             return Response(
-                data={'errors': ERROR_RECIPE_NOT_IN_SHOPPING_CART.format(recipe=recipe)},
+                data={'errors': ERROR_RECIPE_NOT_IN_CART.format(
+                    recipe=recipe
+                )},
                 status=status.HTTP_400_BAD_REQUEST,
             )
         request.user.shopping_cart_recipes.remove(recipe)
@@ -288,7 +296,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
         recipe = get_object_or_404(Recipe, pk=kwargs.get('pk'))
         if request.user.favorite_recipes.filter(pk=recipe.pk).exists():
             return Response(
-                data={'errors': ERROR_RECIPE_IN_FAVORITE.format(recipe=recipe)},
+                data={'errors': ERROR_RECIPE_IN_FAVORITE.format(
+                    recipe=recipe
+                )},
                 status=status.HTTP_400_BAD_REQUEST,
             )
         request.user.favorite_recipes.add(recipe)
@@ -300,14 +310,16 @@ class RecipeViewSet(viewsets.ModelViewSet):
         recipe = get_object_or_404(Recipe, pk=kwargs.get('pk'))
         if not request.user.favorite_recipes.filter(pk=recipe.pk).exists():
             return Response(
-                data={'errors': ERROR_RECIPE_NOT_IN_FAVORITE.format(recipe=recipe)},
+                data={'errors': ERROR_RECIPE_NOT_IN_FAVORITE.format(
+                    recipe=recipe
+                )},
                 status=status.HTTP_400_BAD_REQUEST,
             )
         request.user.favorite_recipes.remove(recipe)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def get_serializer_class(self):
-        if self.action in ('create',  'update'):
+        if self.action in ('create', 'update'):
             return RecipeWriteSerializer
         elif self.action in ('shopping_cart', 'favorite'):
             return RecipeReadPartialSerializer

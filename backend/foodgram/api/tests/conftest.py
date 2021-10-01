@@ -1,8 +1,8 @@
 import pytest
-from api.models import IngredientInRecipe, Recipe, Ingredient, Tag, Subscription
+from api.models import (Ingredient, IngredientInRecipe, Recipe, Subscription,
+                        Tag)
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
-
 
 EMAIL = 'test.user@mail.com'
 PASSWORD = 'TestUserPassword'

@@ -17,9 +17,9 @@ def test_users_url_exists_at_desired_location(guest_client, user_client,
                                               setup_user, subtests):
     """Страницы возвращают ожидаемый код ответа соответствующему клиенту."""
     USERS_DETAIL_URL = reverse('users-detail',
-                                args=[setup_user.id])
+                               args=[setup_user.id])
     USERS_DETAIL_NON_EXISTS_URL = reverse('users-detail',
-                                            args=[100])
+                                          args=[100])
     urls = [
         [USERS_URL, guest_client, 200],
         [USERS_URL, user_client, 200],
@@ -36,12 +36,12 @@ def test_users_url_exists_at_desired_location(guest_client, user_client,
 
 
 @pytest.mark.django_db
-def test_ingredients_url_exists_at_desired_location(guest_client, 
+def test_ingredients_url_exists_at_desired_location(guest_client,
                                                     setup_ingredient,
                                                     subtests):
     """Страницы возвращают ожидаемый код ответа соответствующему клиенту."""
     INGREDIENTS_DETAIL_URL = reverse('ingredients-detail',
-                                        args=[setup_ingredient.id])
+                                     args=[setup_ingredient.id])
     urls = [
         [INGREDIENTS_URL, guest_client, 200],
         [INGREDIENTS_DETAIL_URL, guest_client, 200],
@@ -52,7 +52,7 @@ def test_ingredients_url_exists_at_desired_location(guest_client,
 
 
 @pytest.mark.django_db
-def test_tags_url_exists_at_desired_location(guest_client, 
+def test_tags_url_exists_at_desired_location(guest_client,
                                              setup_tag,
                                              subtests):
     """Страницы возвращают ожидаемый код ответа соответствующему клиенту."""

@@ -18,7 +18,7 @@ def test_routes(setup_user, setup_ingredient, setup_tag, setup_recipe,
         # Non static generated URLs
         f'/api/users/{setup_user.id}/': reverse('users-detail',
                                                 args=[setup_user.id]),
-        f'/api/ingredients/{setup_ingredient.id}/': 
+        f'/api/ingredients/{setup_ingredient.id}/':
             reverse('ingredients-detail', args=[setup_ingredient.id]),
         f'/api/tags/{setup_tag.id}/': reverse('tags-detail',
                                               args=[setup_tag.id]),

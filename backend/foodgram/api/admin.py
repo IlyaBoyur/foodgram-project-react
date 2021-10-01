@@ -1,13 +1,14 @@
 from django.contrib import admin
 
-from .models import IngredientInRecipe, User, Subscription, Ingredient, Tag, Recipe
+from .models import (Ingredient, IngredientInRecipe, Recipe, Subscription, Tag,
+                     User)
 
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
     list_display = ('email', 'username', 'first_name', 'last_name')
     search_fields = ('email', 'username')
-    filter_horizontal = ('shopping_cart_recipes','favorite_recipes',)
+    filter_horizontal = ('shopping_cart_recipes', 'favorite_recipes',)
 
 
 @admin.register(Subscription)

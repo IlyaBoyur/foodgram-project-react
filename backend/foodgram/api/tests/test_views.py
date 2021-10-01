@@ -33,7 +33,7 @@ def assert_user_schema(schema, user, is_registration=False):
     assert schema['last_name'] == user.last_name
     assert schema.get('password') is None
     if not is_registration:
-        assert schema['is_subscribed'] == False
+        assert not schema['is_subscribed']
 
 
 @pytest.mark.django_db
@@ -71,7 +71,7 @@ def test_users_create_account(guest_client, user_credentials):
 def test_users_by_id(setup_user, user_client):
     """Запрос пользователя по ID возвращает ожидаемые данные."""
     USERS_DETAIL_URL = reverse('users-detail',
-                                args=[setup_user.id])
+                               args=[setup_user.id])
     assert_user_schema(
         user_client.get(USERS_DETAIL_URL, format='json').data,
         setup_user
@@ -105,7 +105,7 @@ def test_users_registered_guest_can_login(user_client, user_credentials):
         user_credentials['email']
     )
 
-    
+
 @pytest.mark.django_db
 def test_users_authenticated_user_can_logout(user_client):
     """Запрос на разлогирование возвращает ожидаемые данные."""
@@ -144,7 +144,7 @@ def test_ingredients_by_id(setup_ingredient, guest_client):
                                      args=[setup_ingredient.id])
     response = guest_client.get(INGREDIENTS_DETAIL_URL, format='json')
     assert response.data['id'] == setup_ingredient.id
-    assert  response.data['name'] == setup_ingredient.name
+    assert response.data['name'] == setup_ingredient.name
     assert response.data['measurement_unit'] == (
         setup_ingredient.measurement_unit
     )
@@ -164,9 +164,9 @@ def test_tags_by_id(setup_tag, guest_client):
     TAGS_DETAIL_URL = reverse('tags-detail', args=[setup_tag.id])
     response = guest_client.get(TAGS_DETAIL_URL, format='json')
     assert response.data['id'] == setup_tag.id
-    assert  response.data['name'] == setup_tag.name
+    assert response.data['name'] == setup_tag.name
     value = hex(setup_tag.color)[2:].upper()
-    assert response.data['color'] == '#' + '0'*(6-len(value)) + value
+    assert response.data['color'] == '#' + '0' * (6 - len(value)) + value
     assert response.data['slug'] == setup_tag.slug
 
 
@@ -251,7 +251,7 @@ def test_recipes_favorite(user_client, setup_recipe):
 
 
 def test_recipes_favorite_delete(user_client_recipe_in_favorite,
-                                      setup_recipe):
+                                 setup_recipe):
     """Авторизованный пользователь может удалить Рецепт из избранного."""
     RECIPES_FAVORITE = reverse('recipes-favorite',
                                args=[setup_recipe.id])
@@ -281,6 +281,7 @@ def test_recipes_favorite_delete_twice(user_client, setup_recipe):
         == status.HTTP_400_BAD_REQUEST
     )
 
+
 def test_recipes_shopping_cart(user_client, setup_recipe):
     """Авторизованный пользователь может добавить Рецепт в корзину."""
     RECIPES_SHOPPING_CART = reverse('recipes-shopping-cart',
@@ -292,6 +293,7 @@ def test_recipes_shopping_cart(user_client, setup_recipe):
             flat=True
         )
     )
+
 
 def test_recipes_shopping_cart_add_twice(user_client_recipe_in_cart,
                                          setup_recipe):
