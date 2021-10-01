@@ -43,7 +43,7 @@ class TagSerializer(serializers.ModelSerializer):
         return '#' + '0'*(6-len(value)) + value
 
 
-class RecipeSerializer(serializers.ModelSerializer):
+class RecipeReadSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True, read_only=True)
     author = UserReadSerializer()
     ingredients = IngredientInRecipeSerializer(source='ingredientinrecipe_set',
@@ -61,7 +61,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class RecipePartialSerializer(serializers.ModelSerializer):
+class RecipeReadPartialSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
@@ -82,7 +82,7 @@ class UserSubscribeSerializer(serializers.ModelSerializer):
         return limit if 0 <= limit < all else all
 
     def get_recipes(self, obj):
-        return RecipePartialSerializer(
+        return RecipeReadPartialSerializer(
             obj.recipes.all()[:self.get_recipe_count(obj)],
             many=True,
         ).data

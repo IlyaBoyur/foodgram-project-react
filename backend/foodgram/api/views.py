@@ -12,8 +12,13 @@ from django.http import HttpResponse, request
 from api.filters import IngredientFilter, RecipeFilter
 from api.models import Ingredient, Recipe, Subscription, Tag
 from api.paginators import PageLimitPagination
-from api.serializers import (IngredientSerializer, RecipeSerializer, RecipePartialSerializer, UserSubscribeSerializer,
-                             TagSerializer)
+from api.serializers import (
+    IngredientSerializer,
+    RecipeReadSerializer,
+    RecipeReadPartialSerializer,
+    UserSubscribeSerializer,
+    TagSerializer,
+)
 from rest_framework.permissions import IsAuthenticated
 from wsgiref.util import FileWrapper
 from foodgram.settings import SHOPPING_CART_DIR
@@ -273,5 +278,5 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         if self.action in ('shopping_cart', 'favorite'):
-            return RecipePartialSerializer
-        return RecipeSerializer
+            return RecipeReadPartialSerializer
+        return RecipeReadSerializer
