@@ -117,6 +117,23 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         recipe.tags.add(*validated_data['tags'])
         return recipe
 
+    def update(self, instance, validated_data):
+        instance.ingredients.clear()
+        for ingredient, amount in (
+            (ingredient['id'], {'amount': ingredient['amount']})
+            for ingredient in validated_data['ingredients']
+        ):
+            instance.ingredients.add(ingredient, through_defaults=amount)
+        # Tags
+        instance.tags.clear()
+        instance.tags.add(*validated_data['tags'])
+        return super().update(instance, dict((key, value)
+                   for key,value in validated_data.items()
+                   if key not in ('ingredients', 'tags')))
+        
+
+
+
 
 class UserSubscribeSerializer(serializers.ModelSerializer):
     is_subscribed = serializers.BooleanField(read_only=True)
