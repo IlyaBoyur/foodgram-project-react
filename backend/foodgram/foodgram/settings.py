@@ -142,3 +142,6 @@ DJOSER = {
 }
 
 SHOPPING_CART_DIR = os.path.join(BASE_DIR, 'carts/')
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

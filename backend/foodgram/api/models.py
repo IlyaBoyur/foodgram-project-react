@@ -146,8 +146,10 @@ class Recipe(models.Model):
         'Название',
         max_length=200,
     )
-    image = models.URLField(
+    image = models.ImageField(
         'Ссылка на картинку на сайте',
+        upload_to='recipes',
+        unique=True
     )
     text = models.TextField(
         'Описание',
