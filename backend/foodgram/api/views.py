@@ -16,6 +16,7 @@ from api.serializers import (
     IngredientSerializer,
     RecipeReadSerializer,
     RecipeReadPartialSerializer,
+    RecipeWriteSerializer,
     UserSubscribeSerializer,
     TagSerializer,
 )
@@ -180,6 +181,22 @@ class RecipeViewSet(viewsets.ModelViewSet):
             ).select_related('author').prefetch_related('tags','ingredients')
         )
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors,
+                            status=status.HTTP_400_BAD_REQUEST)
+        self.perform_create(serializer)
+        kwargs.setdefault('context', self.get_serializer_context())
+        return Response(
+            RecipeReadSerializer(
+                self.get_queryset().get(id=serializer.instance.id),
+                *args,
+                **kwargs,
+            ).data,
+            status=status.HTTP_201_CREATED,
+        )
+         
     @action(('get',), detail=False,
             permission_classes=[IsAuthenticated])
     def download_shopping_cart(self, request, *args, **kwargs):
