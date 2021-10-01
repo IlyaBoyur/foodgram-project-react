@@ -187,12 +187,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return Response(serializer.errors,
                             status=status.HTTP_400_BAD_REQUEST)
         self.perform_create(serializer)
-        kwargs.setdefault('context', self.get_serializer_context())
         return Response(
             RecipeReadSerializer(
                 self.get_queryset().get(id=serializer.instance.id),
-                *args,
-                **kwargs,
             ).data,
             status=status.HTTP_201_CREATED,
         )
