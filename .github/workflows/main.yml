@@ -1,0 +1,85 @@
+name: Foodgram workflow
+on:
+  workflow_dispatch:
+  push:
+    branches: [ master ]
+jobs:
+  tests:
+    name: Run tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.3.4
+      - name: Setup Python
+        uses: actions/setup-python@v2.2.2
+        with:
+          python-version: 3.8
+      - name: Install Dependencies
+        run: | 
+          # Обновление pip
+          python -m pip install --upgrade pip 
+          # Установка flake8 и его плагинов
+          pip install flake8 pep8-naming flake8-broken-line flake8-return flake8-isort
+          # Установка зависимостей
+          pip install -r requirements.txt 
+      - name: Test with flake8 and django tests
+        run: |
+          # Перейти в папку проекта
+          cd backend/
+          # Запуск проверки проекта по flake8
+          python -m flake8 
+          # Запустить написанные разработчиком тесты
+          pytest
+
+  build_and_push_to_docker_hub:
+    name: Build & push Docker image to DockerHub
+    runs-on: ubuntu-latest
+    needs: tests
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup Docker buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Login to Docker
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Push to Docker Hub
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/foodgram:latest
+
+  deploy:
+    name: Deploy to Running Server
+    runs-on: ubuntu-latest
+    needs: build_and_push_to_docker_hub
+    steps:
+      - name: Execute remote ssh commands to deploy
+        uses: appleboy/ssh-action@master
+        env:
+          USERNAME: ${{ secrets.WORK_SERVER_USERNAME }}
+        with:
+          host: ${{ secrets.WORK_SERVER_ADDRESS }}
+          username: ${{ secrets.WORK_SERVER_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          passphrase: ${{ secrets.WORK_SERVER_PASSPHRASE }}
+          envs: USERNAME
+          script: |
+            sudo docker pull $USERNAME/infra_actions:latest
+            # Остановка всех контейнеров
+            sudo docker stop $(sudo docker ps -a -q)
+            sudo docker run -d --rm -p 5000:5000 $USERNAME/infra_actions:latest
+
+  send_message:
+    name: Inform success
+    runs-on: ubuntu-latest
+    needs: deploy
+    steps:
+      - name: Send to Telegram
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: ${{ github.workflow }} успешно выполнен!
