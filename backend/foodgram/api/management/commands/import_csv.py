@@ -1,9 +1,10 @@
 import csv
 
 import django.db.utils
-from api.models import Ingredient
 from django.core.management.base import BaseCommand
 from tqdm import tqdm
+
+from api.models import Ingredient
 
 DATA = (
     ('../data/ingredients.csv', ('name', 'measurement_unit'), Ingredient),
