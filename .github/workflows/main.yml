@@ -62,18 +62,33 @@ jobs:
       - name: Execute remote ssh commands to deploy
         uses: appleboy/ssh-action@master
         env:
-          USERNAME: ${{ secrets.WORK_SERVER_USERNAME }}
+          DB_ENGINE: ${{ secrets.DB_ENGINE }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          USERNAME: ${{ secrets.USERNAME }}
         with:
           host: ${{ secrets.WORK_SERVER_ADDRESS }}
           username: ${{ secrets.WORK_SERVER_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.WORK_SERVER_PASSPHRASE }}
-          envs: USERNAME
+          envs: DB_ENGINE, DB_NAME, POSTGRES_USER, POSTGRES_PASSWORD, DB_HOST, DB_PORT, USERNAME
           script: |
-            sudo docker pull $USERNAME/infra_actions:latest
-            # Остановка всех контейнеров
-            sudo docker stop $(sudo docker ps -a -q)
-            sudo docker run -d --rm -p 5000:5000 $USERNAME/infra_actions:latest
+            touch .env 
+            echo DB_ENGINE=$DB_ENGINE >> .env
+            echo DB_NAME=$DB_NAME >> .env
+            echo POSTGRES_USER=$POSTGRES_USER >> .env
+            echo POSTGRES_PASSWORD=$POSTGRES_PASSWORD >> .env
+            echo DB_HOST=$DB_HOST >> .env
+            echo DB_PORT=$DB_PORT >> .env
+
+            sudo docker pull $USERNAME/foodgram:latest
+            sudo docker-compose stop
+            sudo docker-compose rm backend
+            sudo docker tag $USERNAME/foodgram:latest backend
+            sudo docker-compose up -d
 
   send_message:
     name: Inform success
