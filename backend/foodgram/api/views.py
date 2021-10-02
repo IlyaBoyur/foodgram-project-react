@@ -127,20 +127,6 @@ class UserViewSet(djoser_views.UserViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class TokenCreateView(djoser_views.TokenCreateView):
-    def _action(self, serializer):
-        response = super()._action(serializer)
-        response.status_code = status.HTTP_201_CREATED
-        return response
-
-
-class TokenDestroyView(djoser_views.TokenDestroyView):
-    def post(self, request):
-        response = super().post(request)
-        response.status_code = status.HTTP_201_CREATED
-        return response
-
-
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
