@@ -17,10 +17,13 @@ class UserReadSerializer(serializers.ModelSerializer):
         if hasattr(obj, 'is_subscribed'):
             return True if obj.is_subscribed > 0 else False
         else:
+            request = self.context.get('request')
+            if request is None or request.user.is_anonymous:
+                return False
             return (
                 Subscription.objects.filter(
                     author=obj,
-                    subscriber=self.context['request'].user,
+                    subscriber=request.user,
                 ).exists()
             )
 
