@@ -8,8 +8,8 @@ from rest_framework.test import APIClient
 
 User = get_user_model()
 
-TOKEN_LOGIN_URL = reverse('token_login')
-TOKEN_LOGOUT_URL = reverse('token_logout')
+TOKEN_LOGIN_URL = reverse('login')
+TOKEN_LOGOUT_URL = reverse('logout')
 USERS_URL = reverse('users-list')
 USERS_SET_PASSWORD_URL = reverse('users-set-password')
 USERS_ME_URL = reverse('users-me')
@@ -99,7 +99,7 @@ def test_users_registered_guest_can_login(user_client, user_credentials):
                                     'password': user_credentials['password'],
                                 },
                                 format='json')
-    assert response.status_code == status.HTTP_201_CREATED
+    assert response.status_code == status.HTTP_200_OK
     assert Token.objects.get(key=response.data["auth_token"]).user.email == (
         user_credentials['email']
     )
@@ -109,7 +109,7 @@ def test_users_registered_guest_can_login(user_client, user_credentials):
 def test_users_authenticated_user_can_logout(user_client):
     """Запрос на разлогирование возвращает ожидаемые данные."""
     response = user_client.post(TOKEN_LOGOUT_URL, data=None, format='json')
-    assert response.status_code == status.HTTP_201_CREATED
+    assert response.status_code == status.HTTP_204_NO_CONTENT
 
 
 @pytest.mark.django_db

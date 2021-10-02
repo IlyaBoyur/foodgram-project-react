@@ -1,11 +1,8 @@
 import pytest
 from django.urls import reverse
 
-TOKEN_LOGIN_URL = reverse('token_login')
-TOKEN_LOGOUT_URL = reverse('token_logout')
 USERS_URL = reverse('users-list')
 USERS_ME_URL = reverse('users-me')
-USERS_SET_PASSWORD_URL = reverse('users-set-password')
 INGREDIENTS_URL = reverse('ingredients-list')
 TAGS_URL = reverse('tags-list')
 RECIPES_URL = reverse('recipes-list')

@@ -7,8 +7,8 @@ def test_routes(setup_user, setup_ingredient, setup_tag, setup_recipe,
     соответствует ожидаемому видимому URL."""
     routes = {
         # Static URLs
-        '/api/auth/token/login/': reverse('token_login'),
-        '/api/auth/token/logout/': reverse('token_logout'),
+        '/api/auth/token/login': reverse('login'),
+        '/api/auth/token/logout': reverse('logout'),
         '/api/users/': reverse('users-list'),
         '/api/users/me/': reverse('users-me'),
         '/api/users/set_password/': reverse('users-set-password'),
