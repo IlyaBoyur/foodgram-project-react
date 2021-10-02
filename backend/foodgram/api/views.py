@@ -1,9 +1,7 @@
 from wsgiref.util import FileWrapper
 
 from django.contrib.auth import get_user_model
-from django.db.models import Count, Q, Value
-from django.db.models.fields import BooleanField
-from django.db.models.functions import Cast
+from django.db.models import Count, Q
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -146,24 +144,20 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return (
             Recipe.objects.annotate(
-                is_favorited=Cast(
-                    Count('users_have_in_favorite',
-                          filter=Q(users_have_in_favorite=self.request.user)),
-                    output_field=BooleanField()
+                is_favorited=Count(
+                    'users_have_in_favorite',
+                    filter=Q(users_have_in_favorite=self.request.user)
                 ),
-                is_in_shopping_cart=Cast(
-                    Count('users_have_in_shopping_cart',
-                          filter=Q(
-                              users_have_in_shopping_cart=self.request.user
-                          )),
-                    output_field=BooleanField()
+                is_in_shopping_cart=Count(
+                    'users_have_in_shopping_cart',
+                    filter=Q(users_have_in_shopping_cart=self.request.user)
                 )
-            ).select_related('author').prefetch_related('tags', 'ingredients')
+            ).prefetch_related('tags', 'ingredients')
             if self.request.user.is_authenticated
             else Recipe.objects.annotate(
-                is_favorited=Value(False, output_field=BooleanField()),
-                is_in_shopping_cart=Value(False, output_field=BooleanField()),
-            ).select_related('author').prefetch_related('tags', 'ingredients')
+                is_favorited=0,
+                is_in_shopping_cart=0,
+            ).prefetch_related('tags', 'ingredients')
         )
 
     def create(self, request, *args, **kwargs):

@@ -74,9 +74,15 @@ class RecipeReadSerializer(serializers.ModelSerializer):
     ingredients = IngredientInRecipeSerializer(source='ingredientinrecipe_set',
                                                read_only=True,
                                                many=True)
-    is_favorited = serializers.BooleanField()
-    is_in_shopping_cart = serializers.BooleanField()
+    is_favorited = serializers.SerializerMethodField()
+    is_in_shopping_cart = serializers.SerializerMethodField()
     image = serializers.ImageField(use_url=True)
+
+    def get_is_favorited(self, obj):
+        return True if obj.is_favorited > 0 else False
+
+    def get_is_in_shopping_cart(self, obj):
+        return True if obj.is_in_shopping_cart > 0 else False
 
     class Meta:
         model = Recipe
