@@ -61,33 +61,24 @@ jobs:
     steps:
       - name: Execute remote ssh commands to deploy
         uses: appleboy/ssh-action@v0.1.4
-        env:
-          DB_ENGINE: ${{ secrets.DB_ENGINE }}
-          DB_NAME: ${{ secrets.DB_NAME }}
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          DB_HOST: ${{ secrets.DB_HOST }}
-          DB_PORT: ${{ secrets.DB_PORT }}
-          USERNAME: ${{ secrets.DOCKER_USERNAME }}
         with:
           host: ${{ secrets.WORK_SERVER_ADDRESS }}
           username: ${{ secrets.WORK_SERVER_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.WORK_SERVER_PASSPHRASE }}
-          envs: DB_ENGINE, DB_NAME, POSTGRES_USER, POSTGRES_PASSWORD, DB_HOST, DB_PORT, USERNAME
           script: |
             touch .env 
-            echo DB_ENGINE=$DB_ENGINE >> .env
-            echo DB_NAME=$DB_NAME >> .env
-            echo POSTGRES_USER=$POSTGRES_USER >> .env
-            echo POSTGRES_PASSWORD=$POSTGRES_PASSWORD >> .env
-            echo DB_HOST=$DB_HOST >> .env
-            echo DB_PORT=$DB_PORT >> .env
+            echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
+            echo DB_NAME=${{ secrets.DB_NAME }} >> .env
+            echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> .env
+            echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env
+            echo DB_HOST=${{ secrets.DB_HOST }} >> .env
+            echo DB_PORT=${{ secrets.DB_PORT }} >> .env
 
-            sudo docker pull $USERNAME/foodgram:latest
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram:latest
             sudo docker-compose stop
             sudo docker-compose rm backend
-            sudo docker tag $USERNAME/foodgram:latest backend
+            sudo docker tag ${{ secrets.DOCKER_USERNAME }}/foodgram:latest backend
             sudo docker-compose up -d
 
   send_message:
