@@ -2,6 +2,8 @@ from wsgiref.util import FileWrapper
 
 from django.contrib.auth import get_user_model
 from django.db.models import Count, Q
+from django.db.models.expressions import Value
+from django.db.models.fields import IntegerField
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -54,7 +56,9 @@ class UserViewSet(djoser_views.UserViewSet):
                     filter=Q(subscribers__subscriber=self.request.user)
                 ),
             ) if self.request.user.is_authenticated
-            else super().get_queryset().annotate(is_subscribed=0)
+            else super().get_queryset().annotate(
+                is_subscribed=Value(0, output_field=IntegerField())
+            )
         )
 
     def get_serializer_class(self):
@@ -155,8 +159,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
             ).prefetch_related('tags', 'ingredients')
             if self.request.user.is_authenticated
             else Recipe.objects.annotate(
-                is_favorited=0,
-                is_in_shopping_cart=0,
+                is_favorited=Value(0, output_field=IntegerField()),
+                is_in_shopping_cart=Value(0, output_field=IntegerField()),
             ).prefetch_related('tags', 'ingredients')
         )
 
