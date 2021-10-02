@@ -156,13 +156,9 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         )
 
 
-class UserSubscribeSerializer(serializers.ModelSerializer):
-    is_subscribed = serializers.SerializerMethodField()
+class UserSubscribeSerializer(UserReadSerializer):
     recipes = serializers.SerializerMethodField()
     recipe_count = serializers.SerializerMethodField()
-
-    def get_is_subscribed(self, obj):
-        return True if obj.is_subscribed > 0 else False
 
     def get_recipe_count(self, obj):
         limit = self.context['request'].query_params.get('recipes_limit')
