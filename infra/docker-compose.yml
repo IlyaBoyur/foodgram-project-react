@@ -36,7 +36,7 @@ services:
       - ./.env
 
   backend:
-    build: ../backend/foodgram/.
+    image: ${DOCKER_USERNAME}/foodgram:latest
     restart: always
     ports:
       - "8000:8000"
