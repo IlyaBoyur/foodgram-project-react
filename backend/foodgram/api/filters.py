@@ -4,11 +4,6 @@ from django_filters.rest_framework import FilterSet
 
 from .models import Tag
 
-BOOLEAN_CHOICES = (
-    (0, 'False'),
-    (1, 'True'),
-)
-
 User = get_user_model()
 
 
@@ -17,8 +12,8 @@ class IngredientFilter(FilterSet):
 
 
 class RecipeFilter(FilterSet):
-    is_favorited = filters.ChoiceFilter(choices=BOOLEAN_CHOICES)
-    is_in_shopping_cart = filters.ChoiceFilter(choices=BOOLEAN_CHOICES)
+    is_favorited = filters.BooleanFilter()
+    is_in_shopping_cart = filters.BooleanFilter()
     author = filters.ModelChoiceFilter(queryset=User.objects.all())
     tags = filters.ModelMultipleChoiceFilter(
         field_name='tags__slug',
