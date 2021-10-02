@@ -50,15 +50,13 @@ class UserViewSet(djoser_views.UserViewSet):
 
     def get_queryset(self):
         return (
-            super().get_queryset().annotate(is_subscribed=Cast(
-                Count('subscribers',
-                      filter=Q(subscribers__subscriber=self.request.user)),
-                output_field=BooleanField()
-            )) if self.request.user.is_authenticated
-            else super().get_queryset().annotate(is_subscribed=Value(
-                False,
-                output_field=BooleanField()
-            ))
+            super().get_queryset().annotate(
+                is_subscribed=Count(
+                    'subscribers',
+                    filter=Q(subscribers__subscriber=self.request.user)
+                ),
+            ) if self.request.user.is_authenticated
+            else super().get_queryset().annotate(is_subscribed=0)
         )
 
     def get_serializer_class(self):

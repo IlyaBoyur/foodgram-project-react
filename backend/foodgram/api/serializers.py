@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from . import fields
-from .models import Ingredient, IngredientInRecipe, Recipe, Tag
+from .models import Ingredient, IngredientInRecipe, Recipe, Subscription, Tag
 
 User = get_user_model()
 
@@ -11,7 +11,18 @@ VALIDATION_ERROR_INGREDIENTS = 'Проверьте правильность вы
 
 
 class UserReadSerializer(serializers.ModelSerializer):
-    is_subscribed = serializers.BooleanField(read_only=True)
+    is_subscribed = serializers.SerializerMethodField()
+
+    def get_is_subscribed(self, obj):
+        if hasattr(obj, 'is_subscribed'):
+            return True if obj.is_subscribed > 0 else False
+        else:
+            return (
+                Subscription.objects.filter(
+                    author=obj,
+                    subscriber=self.context['request'].user,
+                ).exists()
+            )
 
     class Meta:
         model = User
@@ -137,9 +148,12 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
 
 
 class UserSubscribeSerializer(serializers.ModelSerializer):
-    is_subscribed = serializers.BooleanField(read_only=True)
+    is_subscribed = serializers.SerializerMethodField()
     recipes = serializers.SerializerMethodField()
     recipe_count = serializers.SerializerMethodField()
+
+    def get_is_subscribed(self, obj):
+        return True if obj.is_subscribed > 0 else False
 
     def get_recipe_count(self, obj):
         limit = self.context['request'].query_params.get('recipes_limit')
