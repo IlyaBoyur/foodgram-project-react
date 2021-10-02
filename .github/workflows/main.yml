@@ -23,6 +23,8 @@ jobs:
           # Установка зависимостей
           pip install -r backend/foodgram/requirements.txt 
       - name: Test with flake8 and django tests
+        env: 
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
         run: |
           # Перейти в папку проекта
           cd backend/foodgram/
