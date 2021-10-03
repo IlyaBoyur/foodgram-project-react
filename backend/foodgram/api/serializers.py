@@ -3,11 +3,12 @@ from rest_framework import serializers
 
 from . import fields
 from .models import Ingredient, IngredientInRecipe, Recipe, Subscription, Tag
+from .validators import UniqueManyFieldsValidator
 
 User = get_user_model()
 
-VALIDATION_ERROR_TAGS = 'Проверьте правильность выбора тэгов.'
-VALIDATION_ERROR_INGREDIENTS = 'Проверьте правильность выбора ингредиентов.'
+ERROR_INGREDIENTS_NOT_UNIQUE = 'Ингредиенты в списке должны быть уникальны.'
+ERROR_TAGS_NOT_UNIQUE = 'Тэги в списке должны быть уникальны.'
 
 
 class UserReadSerializer(serializers.ModelSerializer):
@@ -51,8 +52,9 @@ class IngredientInRecipeSerializer(serializers.ModelSerializer):
 
 
 class IngredientInRecipeWriteSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(min_value=0)
-    amount = serializers.IntegerField(min_value=1)
+    id = serializers.PrimaryKeyRelatedField(
+        queryset=Ingredient.objects.all()
+    )
 
     class Meta:
         model = IngredientInRecipe
@@ -99,8 +101,11 @@ class RecipeReadPartialSerializer(serializers.ModelSerializer):
 
 
 class RecipeWriteSerializer(serializers.ModelSerializer):
-    ingredients = IngredientInRecipeWriteSerializer(many=True)
-    tags = serializers.ListField(child=serializers.IntegerField(min_value=0))
+    ingredients = IngredientInRecipeWriteSerializer(many=True,
+                                                    allow_empty=False)
+    tags = serializers.PrimaryKeyRelatedField(many=True,
+                                              queryset=Tag.objects.all(),
+                                              allow_empty=False)
     image = fields.Base64ImageField()
     author = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all(),
@@ -110,17 +115,13 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = '__all__'
-
-    def validate_ingredients(self, value):
-        ids = [ingredient['id'] for ingredient in value]
-        if Ingredient.objects.filter(id__in=ids).count() < len(value):
-            raise serializers.ValidationError(VALIDATION_ERROR_INGREDIENTS)
-        return value
-
-    def validate_tags(self, value):
-        if Tag.objects.filter(id__in=value).count() < len(value):
-            raise serializers.ValidationError(VALIDATION_ERROR_TAGS)
-        return value
+        validators = (
+            UniqueManyFieldsValidator('ingredients',
+                                      'id',
+                                      message=ERROR_INGREDIENTS_NOT_UNIQUE),
+            UniqueManyFieldsValidator('tags',
+                                      message=ERROR_TAGS_NOT_UNIQUE),
+        )
 
     def create(self, validated_data):
         recipe = Recipe.objects.create(
