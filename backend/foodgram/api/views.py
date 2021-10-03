@@ -239,6 +239,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         )
         return HttpResponse(
             FileWrapper(cart),
+            content_type='application/pdf',
             status=status.HTTP_200_OK,
         )
 
