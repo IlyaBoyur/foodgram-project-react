@@ -21,7 +21,10 @@ jobs:
           # Установка flake8 и его плагинов
           pip install flake8 pep8-naming flake8-broken-line flake8-return flake8-isort
           # Установка зависимостей
-          pip install -r backend/foodgram/requirements.txt 
+          pip install -r backend/foodgram/requirements.txt
+          # Установка шрифтов для fpdf
+          wget -O temp.zip "https://github.com/reingart/pyfpdf/releases/download/binary/fpdf_unicode_font_pack.zip"
+          unzip temp.zip -d /usr/local/lib/python3.8/site-packages/fpdf
       - name: Test with flake8 and django tests
         env: 
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
