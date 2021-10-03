@@ -124,9 +124,9 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         recipe = Recipe.objects.create(
-            **dict((key, validated_data[key])
-                   for key in validated_data
-                   if key not in ('ingredients', 'tags'))
+            **{field: value
+               for field, value in validated_data.items()
+               if field not in ('ingredients', 'tags')}
         )
         # Ingredients
         for ingredient, amount in (
