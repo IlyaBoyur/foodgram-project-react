@@ -140,20 +140,20 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         return recipe
 
     def update(self, instance, validated_data):
-        instance.ingredients.clear()
-        for ingredient, amount in (
-            (ingredient['id'], {'amount': ingredient['amount']})
-            for ingredient in validated_data['ingredients']
-        ):
-            instance.ingredients.add(ingredient, through_defaults=amount)
-        # Tags
-        instance.tags.clear()
-        instance.tags.add(*validated_data['tags'])
+        if validated_data.get('tags') is not None:
+            instance.tags.set(validated_data['tags'])
+        if validated_data.get('ingredients') is not None:
+            instance.ingredients.clear()
+            for ingredient, amount in (
+                (ingredient['id'], {'amount': ingredient['amount']})
+                for ingredient in validated_data['ingredients']
+            ):
+                instance.ingredients.add(ingredient, through_defaults=amount)
         return super().update(
             instance,
-            dict((key, value)
-                 for key, value in validated_data.items()
-                 if key not in ('ingredients', 'tags')),
+            {key: value
+             for key, value in validated_data.items()
+             if key not in ('ingredients', 'tags')},
         )
 
 
