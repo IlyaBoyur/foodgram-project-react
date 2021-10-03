@@ -40,7 +40,7 @@ class IngredientSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class IngredientInRecipeSerializer(serializers.ModelSerializer):
+class IngredientInRecipeReadSerializer(serializers.ModelSerializer):
     name = serializers.ReadOnlyField(source='ingredient.name')
     measurement_unit = serializers.ReadOnlyField(
         source='ingredient.measurement_unit'
@@ -76,9 +76,11 @@ class TagSerializer(serializers.ModelSerializer):
 class RecipeReadSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True, read_only=True)
     author = UserReadSerializer()
-    ingredients = IngredientInRecipeSerializer(source='ingredientinrecipe_set',
-                                               read_only=True,
-                                               many=True)
+    ingredients = IngredientInRecipeReadSerializer(
+        source='ingredientinrecipe_set',
+        read_only=True,
+        many=True,
+    )
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
     image = serializers.ImageField(use_url=True)
