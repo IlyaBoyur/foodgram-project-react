@@ -8,12 +8,10 @@ def test_user_verbose_names(setup_user):
         'shopping_cart_recipes': 'Корзина',
         'favorite_recipes': 'Избранное',
     }
-    verbose_name = 'Пользователь'
-    verbose_name_plural = 'Пользователи'
     for field, value in field_verboses.items():
         assert setup_user._meta.get_field(field).verbose_name == value
-    assert setup_user._meta.verbose_name == verbose_name
-    assert setup_user._meta.verbose_name_plural == verbose_name_plural
+    assert setup_user._meta.verbose_name == 'Пользователь'
+    assert setup_user._meta.verbose_name_plural == 'Пользователи'
 
 
 def test_subscription_verbose_names(setup_subscription):
@@ -22,12 +20,10 @@ def test_subscription_verbose_names(setup_subscription):
         'author': 'Автор',
         'subscriber': 'Подписчик',
     }
-    verbose_name = 'Подписка'
-    verbose_name_plural = 'Подписки'
     for field, value in field_verboses.items():
         assert setup_subscription._meta.get_field(field).verbose_name == value
-    assert setup_subscription._meta.verbose_name == verbose_name
-    assert setup_subscription._meta.verbose_name_plural == verbose_name_plural
+    assert setup_subscription._meta.verbose_name == 'Подписка'
+    assert setup_subscription._meta.verbose_name_plural == 'Подписки'
     assert str(setup_subscription) == (
         f'{setup_subscription.subscriber.username} -> '
         f'{setup_subscription.author.username}'
@@ -41,12 +37,10 @@ def test_tag_verbose_names(setup_tag):
         'color': 'Цвет в HEX',
         'slug': 'Уникальный слаг',
     }
-    verbose_name = 'Тэг'
-    verbose_name_plural = 'Тэги'
     for field, value in field_verboses.items():
         assert setup_tag._meta.get_field(field).verbose_name == value
-    assert setup_tag._meta.verbose_name == verbose_name
-    assert setup_tag._meta.verbose_name_plural == verbose_name_plural
+    assert setup_tag._meta.verbose_name == 'Тэг'
+    assert setup_tag._meta.verbose_name_plural == 'Тэги'
     assert str(setup_tag) == setup_tag.name
 
 
@@ -56,12 +50,10 @@ def test_ingredient_verbose_names(setup_ingredient):
         'name': 'Название',
         'measurement_unit': 'Единица измерения',
     }
-    verbose_name = 'Ингредиент'
-    verbose_name_plural = 'Ингредиенты'
     for field, value in field_verboses.items():
         assert setup_ingredient._meta.get_field(field).verbose_name == value
-    assert setup_ingredient._meta.verbose_name == verbose_name
-    assert setup_ingredient._meta.verbose_name_plural == verbose_name_plural
+    assert setup_ingredient._meta.verbose_name == 'Ингредиент'
+    assert setup_ingredient._meta.verbose_name_plural == 'Ингредиенты'
     assert str(setup_ingredient) == (
         f'{setup_ingredient.name}, {setup_ingredient.measurement_unit}'
     )
@@ -73,17 +65,17 @@ def test_ingredient_in_recipe_verbose_names(setup_ingredient_in_recipe):
         'ingredient': 'Ингредиент',
         'recipe': 'Рецепт',
     }
-    verbose_name = 'Ингредиент в рецепте'
-    verbose_name_plural = 'Ингредиенты в рецептах'
     for field, value in field_verboses.items():
         assert (
             setup_ingredient_in_recipe._meta.get_field(field).verbose_name == (
                 value
             )
         )
-    assert setup_ingredient_in_recipe._meta.verbose_name == verbose_name
+    assert setup_ingredient_in_recipe._meta.verbose_name == (
+        'Ингредиент в рецепте'
+    )
     assert setup_ingredient_in_recipe._meta.verbose_name_plural == (
-        verbose_name_plural
+        'Ингредиенты в рецептах'
     )
 
 
@@ -98,10 +90,8 @@ def test_recipe_verbose_names(setup_recipe):
         'ingredients': 'Список ингредиентов',
         'pub_date': 'Дата публикации',
     }
-    verbose_name = 'Рецепт'
-    verbose_name_plural = 'Рецепты'
     for field, value in field_verboses.items():
         assert setup_recipe._meta.get_field(field).verbose_name == value
-    assert setup_recipe._meta.verbose_name == verbose_name
-    assert setup_recipe._meta.verbose_name_plural == verbose_name_plural
+    assert setup_recipe._meta.verbose_name == 'Рецепт'
+    assert setup_recipe._meta.verbose_name_plural == 'Рецепты'
     assert str(setup_recipe) == setup_recipe.name
