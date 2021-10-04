@@ -38,8 +38,6 @@ services:
   backend:
     image: ${DOCKER_USERNAME}/foodgram:latest
     restart: always
-    ports:
-      - "8000:8000"
     volumes:
       - static_value:/code/backend_static/
       - media_value:/code/backend_media/
