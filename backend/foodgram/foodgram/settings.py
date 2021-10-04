@@ -4,7 +4,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get('SECRET_KEY')
-DEBUG = os.environ.get('DEBUG')
+DEBUG = False
 ALLOWED_HOSTS = ['127.0.0.1', '84.201.137.25']
 
 INSTALLED_APPS = [
