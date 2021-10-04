@@ -9,11 +9,8 @@ VALIDATION_ERROR_BASE64 = 'Неверный формат изображения.
 
 
 class Base64ImageField(serializers.ImageField):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
     def to_internal_value(self, data):
-        """Create image object and save its URL to model field."""
+        """Parse input string, decode, save image."""
         try:
             format, image_string = data.split(';base64,')
             data = ContentFile(
