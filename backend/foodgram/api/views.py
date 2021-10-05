@@ -40,6 +40,7 @@ PDF_ALIGN_LEFT = 'L'
 PDF_FONT_FAMILY = 'DejaVu'
 PDF_FONT_STYLE = ''
 PDF_FONT_NAME = 'DejaVuSansCondensed.ttf'
+PDF_FONT_SIZE = 14
 
 User = get_user_model()
 
@@ -212,7 +213,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                          PDF_FONT_STYLE,
                          PDF_FONT_NAME,
                          uni=True)
-            pdf.set_font(PDF_FONT_FAMILY, size=14)
+            pdf.set_font(PDF_FONT_FAMILY, size=PDF_FONT_SIZE)
             pdf.multi_cell(
                 PDF_CELL_WIDTH,
                 PDF_CELL_HEGHT,
