@@ -16,7 +16,7 @@ class UserReadSerializer(serializers.ModelSerializer):
 
     def get_is_subscribed(self, obj):
         if hasattr(obj, 'is_subscribed'):
-            return True if obj.is_subscribed > 0 else False
+            return obj.is_subscribed > 0
         else:
             request = self.context.get('request')
             if request is None or request.user.is_anonymous:
@@ -90,10 +90,10 @@ class RecipeReadSerializer(serializers.ModelSerializer):
     image = serializers.ImageField(use_url=True)
 
     def get_is_favorited(self, obj):
-        return True if obj.is_favorited > 0 else False
+        return obj.is_favorited > 0
 
     def get_is_in_shopping_cart(self, obj):
-        return True if obj.is_in_shopping_cart > 0 else False
+        return obj.is_in_shopping_cart > 0
 
     class Meta:
         model = Recipe
