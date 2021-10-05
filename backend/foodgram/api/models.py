@@ -67,15 +67,15 @@ class Subscription(models.Model):
         verbose_name='Подписчик',
     )
 
-    def __str__(self):
-        return f'{self.subscriber.username} -> {self.author.username}'
-
     class Meta:
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
         ordering = (
             'author',
         )
+    
+    def __str__(self):
+        return f'{self.subscriber.username} -> {self.author.username}'
 
 
 class Tag(models.Model):
@@ -103,15 +103,15 @@ class Tag(models.Model):
         ),
     )
 
-    def __str__(self):
-        return f'{self.name}'
-
     class Meta:
         verbose_name = 'Тэг'
         verbose_name_plural = 'Тэги'
         ordering = (
             'name',
         )
+
+    def __str__(self):
+        return f'{self.name}'
 
 
 class Ingredient(models.Model):
@@ -124,15 +124,15 @@ class Ingredient(models.Model):
         max_length=200,
     )
 
-    def __str__(self):
-        return f'{self.name}, {self.measurement_unit}'
-
     class Meta:
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
         ordering = (
             'name',
         )
+
+    def __str__(self):
+        return f'{self.name}, {self.measurement_unit}'
 
 
 class Recipe(models.Model):
@@ -176,15 +176,15 @@ class Recipe(models.Model):
         auto_now_add=True,
     )
 
-    def __str__(self):
-        return f'{self.name}'
-
     class Meta:
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
         ordering = (
             '-pub_date',
         )
+
+    def __str__(self):
+        return f'{self.name}'
 
 
 class IngredientInRecipe(models.Model):
