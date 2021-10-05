@@ -6,7 +6,7 @@ from rest_framework.test import APIClient
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 
-from foodgram.api.models import Ingredient, Subscription, Tag
+from api.models import Ingredient, Subscription, Tag
 
 User = get_user_model()
 
