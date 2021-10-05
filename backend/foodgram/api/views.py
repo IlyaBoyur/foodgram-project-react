@@ -26,6 +26,7 @@ from .serializers import (
     IngredientSerializer, RecipeReadPartialSerializer, RecipeReadSerializer,
     RecipeWriteSerializer, TagSerializer, UserSubscribeSerializer,
 )
+from .utils import create_shop_list
 
 ERROR_RECIPE_IN_CART = 'Рецепт {recipe} уже в корзине.'
 ERROR_RECIPE_NOT_IN_CART = 'Рецепта {recipe} нет в корзине.'
@@ -34,16 +35,6 @@ ERROR_RECIPE_NOT_IN_FAVORITE = 'Рецепта {recipe} нет в избранн
 ERROR_SUBSCRIBE_SELF = 'Невозможно подписаться на самого себя.'
 ERROR_SUBSCRIBE_AGAIN = 'Вы уже подписаны на {author}.'
 ERROR_UNSUBSCRIBE_AGAIN = 'Вы не подписаны на {author}.'
-PDF_INGREDIENT_LINE = '{name} ({unit}) - {amount}\n'
-PDF_HEAD_LINE = 'Список покупок для {name} {surname}\n\n'
-PDF_CELL_WIDTH = 200
-PDF_CELL_HEGHT = 10
-PDF_ALIGN_CENTER = 'C'
-PDF_ALIGN_LEFT = 'L'
-PDF_FONT_FAMILY = 'DejaVu'
-PDF_FONT_STYLE = ''
-PDF_FONT_NAME = 'DejaVuSansCondensed.ttf'
-PDF_FONT_SIZE = 14
 
 User = get_user_model()
 
@@ -195,48 +186,29 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(('get',), detail=False,
             permission_classes=[IsAuthenticated])
     def download_shopping_cart(self, request, *args, **kwargs):
-        def create_shop_list(pdf_name):
-            ingredients = {}
-            for recipe in self.get_serializer(
-                self.get_queryset().filter(is_in_shopping_cart=True),
-                many=True,
-            ).data:
-                for ingredient in recipe['ingredients']:
-                    name = ingredient["name"]
-                    unit = ingredient["measurement_unit"]
-                    amount = ingredients.setdefault((name, unit), 0)
-                    ingredients[(name, unit)] = amount + ingredient["amount"]
-
-            from fpdf import FPDF
-            pdf = FPDF()
-            pdf.add_page()
-            pdf.add_font(PDF_FONT_FAMILY,
-                         PDF_FONT_STYLE,
-                         PDF_FONT_NAME,
-                         uni=True)
-            pdf.set_font(PDF_FONT_FAMILY, size=PDF_FONT_SIZE)
-            pdf.multi_cell(
-                PDF_CELL_WIDTH,
-                PDF_CELL_HEGHT,
-                txt=PDF_HEAD_LINE.format(name=request.user.first_name,
-                                         surname=request.user.last_name),
-                align=PDF_ALIGN_CENTER
+        ingredients = {}
+        for name, unit, amount in (
+            (ingredient['name'],
+             ingredient['measurement_unit'],
+             ingredient['amount'])
+            for ingredient in (
+                item for sublist in (
+                    recipe['ingredients']
+                    for recipe in self.get_serializer(
+                        self.get_queryset().filter(is_in_shopping_cart=True),
+                        many=True,
+                    ).data
+                ) for item in sublist
             )
-            for name, unit, amount in ((key, value, ingredients[key, value])
-                                       for key, value in ingredients):
-                pdf.multi_cell(
-                    PDF_CELL_WIDTH,
-                    PDF_CELL_HEGHT,
-                    txt=PDF_INGREDIENT_LINE.format(name=name.capitalize(),
-                                                   unit=unit,
-                                                   amount=str(amount)),
-                    align=PDF_ALIGN_LEFT,
-                )
-            pdf.output(pdf_name)
-            return pdf_name
+        ):
+            ingredients[(name, unit)] = (
+                ingredients.setdefault((name, unit), 0) + amount
+            )
         cart = open(
             create_shop_list(SHOPPING_CART_DIR
-                             + f'{request.user.username}_cart.pdf'),
+                             + f'{request.user.username}_cart.pdf',
+                             request.user,
+                             ingredients),
             'rb',
         )
         return HttpResponse(
