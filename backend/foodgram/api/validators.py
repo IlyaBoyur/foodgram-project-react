@@ -14,4 +14,4 @@ class UniqueManyFieldsValidator:
             attr[self.unique_subfield] for attr in attrs[self.many_field]
         ) if self.unique_subfield else set(attrs[self.many_field])
         if len(attrs[self.many_field]) != len(unique_in_many_field):
-            raise serializers.ValidationError(self.message)
+            raise serializers.ValidationError({self.many_field: self.message})
