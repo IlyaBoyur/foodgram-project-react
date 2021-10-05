@@ -135,32 +135,34 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
                for field, value in validated_data.items()
                if field not in ('ingredients', 'tags')}
         )
-        # Ingredients
-        for ingredient, amount in (
-            (ingredient['id'], {'amount': ingredient['amount']})
-            for ingredient in validated_data['ingredients']
-        ):
-            recipe.ingredients.add(ingredient, through_defaults=amount)
-        # Tags
-        recipe.tags.add(*validated_data['tags'])
+        self.update_ingredients(recipe, validated_data)
+        self.update_tags(recipe, validated_data)
         return recipe
 
     def update(self, instance, validated_data):
-        if validated_data.get('tags') is not None:
-            instance.tags.set(validated_data['tags'])
-        if validated_data.get('ingredients') is not None:
-            instance.ingredients.clear()
-            for ingredient, amount in (
-                (ingredient['id'], {'amount': ingredient['amount']})
-                for ingredient in validated_data['ingredients']
-            ):
-                instance.ingredients.add(ingredient, through_defaults=amount)
+        self.update_tags(instance, validated_data)
+        self.update_ingredients(instance, validated_data)
         return super().update(
             instance,
             {key: value
              for key, value in validated_data.items()
              if key not in ('ingredients', 'tags')},
         )
+
+    def update_ingredients(self, instance, validated_data):
+        ingredients = validated_data.get('ingredients')
+        if ingredients is not None:
+            instance.ingredients.clear()
+            for ingredient, amount in (
+                (ingredient['id'], {'amount': ingredient['amount']})
+                for ingredient in ingredients
+            ):
+                instance.ingredients.add(ingredient, through_defaults=amount)
+
+    def update_tags(self, instance, validated_data):
+        tags = validated_data.get('tags')
+        if tags is not None:
+            instance.tags.set(tags)
 
 
 class UserSubscribeSerializer(UserReadSerializer):
