@@ -77,7 +77,7 @@ class Subscription(models.Model):
             models.UniqueConstraint(fields=('author', 'subscriber'),
                                     name='unique_subscription'),
         )
-    
+
     def __str__(self):
         return f'{self.subscriber.username} -> {self.author.username}'
 

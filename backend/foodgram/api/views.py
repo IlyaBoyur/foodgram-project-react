@@ -1,18 +1,20 @@
+
 from wsgiref.util import FileWrapper
+
+from django_filters.rest_framework import DjangoFilterBackend
+from djoser import views as djoser_views
+from rest_framework import status, viewsets
+from rest_framework.decorators import action
+from rest_framework.permissions import (
+    IsAuthenticated, IsAuthenticatedOrReadOnly,
+)
+from rest_framework.response import Response
 
 from django.contrib.auth import get_user_model
 from django.db.models import Count, Q
 from django.db.models.expressions import Value
 from django.db.models.fields import IntegerField
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
-from django_filters.rest_framework import DjangoFilterBackend
-from djoser import views as djoser_views
-from rest_framework import status, viewsets
-from rest_framework.decorators import action
-from rest_framework.permissions import (IsAuthenticated,
-                                        IsAuthenticatedOrReadOnly)
-from rest_framework.response import Response
+from django.shortcuts import HttpResponse, get_object_or_404
 
 from foodgram.settings import SHOPPING_CART_DIR
 
@@ -20,9 +22,10 @@ from .filters import IngredientFilter, RecipeFilter
 from .models import Ingredient, Recipe, Subscription, Tag
 from .paginators import PageLimitPagination
 from .permissions import IsAuthorOrReadOnly
-from .serializers import (IngredientSerializer, RecipeReadPartialSerializer,
-                          RecipeReadSerializer, RecipeWriteSerializer,
-                          TagSerializer, UserSubscribeSerializer)
+from .serializers import (
+    IngredientSerializer, RecipeReadPartialSerializer, RecipeReadSerializer,
+    RecipeWriteSerializer, TagSerializer, UserSubscribeSerializer,
+)
 
 ERROR_RECIPE_IN_CART = 'Рецепт {recipe} уже в корзине.'
 ERROR_RECIPE_NOT_IN_CART = 'Рецепта {recipe} нет в корзине.'

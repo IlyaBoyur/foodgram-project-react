@@ -1,8 +1,9 @@
 import csv
 
+from tqdm import tqdm
+
 import django.db.utils
 from django.core.management.base import BaseCommand
-from tqdm import tqdm
 
 from api.models import Ingredient
 

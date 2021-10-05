@@ -1,8 +1,9 @@
 import base64
 import uuid
 
-from django.core.files.base import ContentFile
 from rest_framework import serializers
+
+from django.core.files.base import ContentFile
 
 IMAGE_FILE_NAME = '{user}_recipe_{unique_end}.{extention}'
 VALIDATION_ERROR_BASE64 = 'Неверный формат изображения.'
