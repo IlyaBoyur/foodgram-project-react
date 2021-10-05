@@ -165,7 +165,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
         self.perform_create(serializer)
         return Response(
             RecipeReadSerializer(
-                self.get_queryset().get(id=serializer.instance.id),
+                get_object_or_404(self.get_queryset(),
+                                  id=serializer.instance.id),
             ).data,
             status=status.HTTP_201_CREATED,
         )
@@ -178,7 +179,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
         self.perform_update(serializer)
         return Response(
             RecipeReadSerializer(
-                self.get_queryset().get(id=serializer.instance.id),
+                get_object_or_404(self.get_queryset(),
+                                  id=serializer.instance.id),
             ).data,
             status=status.HTTP_200_OK,
         )
