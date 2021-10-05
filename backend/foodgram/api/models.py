@@ -73,6 +73,10 @@ class Subscription(models.Model):
         ordering = (
             'author',
         )
+        constraints = (
+            models.UniqueConstraint(fields=('author', 'subscriber'),
+                                    name='unique_subscription'),
+        )
     
     def __str__(self):
         return f'{self.subscriber.username} -> {self.author.username}'
