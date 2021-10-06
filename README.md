@@ -61,6 +61,7 @@ docker-compose exec web python manage.py collectstatic
 - Корневое представление API: http://127.0.0.1/api/
 - Спецификация API: http://127.0.0.1/api/docs/
 - Админка: http://127.0.0.1/admin
+- Доступ к админке: login: admin@admin.su; password: admin
 - Развернутый проект: [здесь](http://84.201.137.25/)
 
 ### Планы по улучшению
