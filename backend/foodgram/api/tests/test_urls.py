@@ -1,5 +1,4 @@
 import pytest
-
 from django.urls import reverse
 
 USERS_URL = reverse('users-list')

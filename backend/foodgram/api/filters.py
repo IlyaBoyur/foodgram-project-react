@@ -1,7 +1,6 @@
 import django_filters as filters
-from django_filters.rest_framework import FilterSet
-
 from django.contrib.auth import get_user_model
+from django_filters.rest_framework import FilterSet
 
 from .models import Tag
 
