@@ -156,6 +156,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
             ).prefetch_related('tags', 'ingredients')
         )
 
+    def filter_queryset(self, queryset):
+        return super().filter_queryset(queryset).order_by('-pub_date')
+
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
