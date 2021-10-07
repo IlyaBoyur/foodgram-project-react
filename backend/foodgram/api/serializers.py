@@ -1,14 +1,16 @@
 from django.contrib.auth import get_user_model
+from django.core.validators import MinValueValidator
 from rest_framework import serializers
 
 from . import fields
 from .models import Ingredient, IngredientInRecipe, Recipe, Subscription, Tag
-from .validators import UniqueManyFieldsValidator
+from .validators import MinValueForFieldValidator, UniqueManyFieldsValidator
 
 User = get_user_model()
 
 ERROR_INGREDIENTS_NOT_UNIQUE = 'Ингредиенты в списке должны быть уникальны.'
 ERROR_TAGS_NOT_UNIQUE = 'Тэги в списке должны быть уникальны.'
+ERROR_MIN_VALUE = 'Минимальное количество для {name}: {value}'
 
 
 class UserReadSerializer(serializers.ModelSerializer):
@@ -59,10 +61,19 @@ class IngredientInRecipeWriteSerializer(serializers.ModelSerializer):
     id = serializers.PrimaryKeyRelatedField(
         queryset=Ingredient.objects.all()
     )
+    amount = serializers.IntegerField()
 
     class Meta:
         model = IngredientInRecipe
         fields = ('id', 'amount')
+        validators = (
+            MinValueForFieldValidator(
+                min_value=1,
+                value_field='amount',
+                name_field='id',
+                message=ERROR_MIN_VALUE,
+            ),
+        )
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -116,6 +127,11 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
     author = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all(),
         default=serializers.CurrentUserDefault(),
+    )
+    cooking_time = serializers.IntegerField(
+        validators=(
+            MinValueValidator(1, 'Минимальное время приготовления: 1'),
+        ),
     )
 
     class Meta:
