@@ -9,6 +9,7 @@ from .models import (
 class UserAdmin(admin.ModelAdmin):
     list_display = ('email', 'username', 'first_name', 'last_name')
     search_fields = ('email', 'username')
+    list_filter = ('email', 'username')
     filter_horizontal = ('shopping_cart_recipes', 'favorite_recipes',)
 
 
@@ -35,9 +36,10 @@ class IngredientInlineAdmin(admin.TabularInline):
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ('name', 'author', 'pub_date', 'is_favorited')
+    list_display = ('name', 'author', 'pub_date')
+    readonly_fields = ('is_favorited',)
     inlines = (IngredientInlineAdmin,)
-    search_fields = ('author', 'name', 'text')
+    search_fields = ('author__username', 'name', 'text', 'tags__slug')
     list_filter = ('author', 'name', 'tags')
     filter_horizontal = ('tags',)
 
