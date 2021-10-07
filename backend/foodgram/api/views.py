@@ -161,7 +161,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        if not serializer.is_valid():
+            return Response(serializer.flattened_errors,
+                            status=status.HTTP_400_BAD_REQUEST)
         self.perform_create(serializer)
         return Response(
             RecipeReadSerializer(
@@ -175,7 +177,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(instance=self.get_object(),
                                          data=request.data,
                                          partial=kwargs.pop('partial', False))
-        serializer.is_valid(raise_exception=True)
+        if not serializer.is_valid():
+            return Response(serializer.flattened_errors,
+                            status=status.HTTP_400_BAD_REQUEST)
         self.perform_update(serializer)
         return Response(
             RecipeReadSerializer(

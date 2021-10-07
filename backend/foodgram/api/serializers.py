@@ -145,6 +145,21 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
                                       message=ERROR_TAGS_NOT_UNIQUE),
         )
 
+    @property
+    def flattened_errors(self):
+        """Returns all errors in one dictionary"""
+        flat_errors = {}
+
+        def traverse_errors(errors, prefix):
+            for key, value in errors.items():
+                for number, item in enumerate(value):
+                    if isinstance(item, dict):
+                        traverse_errors(item, f'{key}_{number}_')
+                    else:
+                        flat_errors[prefix + key] = value
+        traverse_errors(self.errors, '')
+        return flat_errors
+
     def create(self, validated_data):
         recipe = Recipe.objects.create(
             **{field: value
