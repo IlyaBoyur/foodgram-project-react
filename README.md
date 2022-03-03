@@ -1,4 +1,4 @@
-![Foogram workflow](https://github.com/IlyaBoyur/foodgram-project-react/actions/workflows/main.yml/badge.svg))
+![Foogram workflow](https://github.com/IlyaBoyur/foodgram-project-react/actions/workflows/main.yml/badge.svg)
 
 # Продуктовый помощник Foodgram
 На этом сервисе пользователи могут:
