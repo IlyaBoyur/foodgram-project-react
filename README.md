@@ -10,7 +10,7 @@
 <br>
 
 ## Технологии
-Django, Django REST Framework, React.js, PostgreSQL, Gunicorn, Docker, nginx, git
+Django, Django REST Framework, React.js, PostgreSQL, Gunicorn, Docker, Microsoft Azure, nginx, git
 
 <br>
 
@@ -62,7 +62,7 @@ docker-compose exec web python manage.py collectstatic
 - Спецификация API: http://127.0.0.1/api/docs/
 - Админка: http://127.0.0.1/admin
 - Доступ к админке: login: admin@admin.su; password: admin
-- Развернутый проект: [здесь](http://84.201.137.25/)
+- Развернутый проект: [здесь](http://www.foodgram-project.ml/)
 
 ### Планы по улучшению
 * Добавить более подробный профиль пользователя
