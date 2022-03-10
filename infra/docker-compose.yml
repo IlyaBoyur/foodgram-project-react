@@ -36,7 +36,7 @@ services:
       - ./.env
 
   backend:
-    image: ${DOCKER_USERNAME}/foodgram:latest
+    build: ../backend/foodgram/
     restart: always
     volumes:
       - static_value:/code/backend_static/
