@@ -10,7 +10,7 @@
 <br>
 
 ## Технологии
-Django, Django REST Framework, React.js, PostgreSQL, Gunicorn, Docker, Microsoft Azure, nginx, git
+Django, Django REST Framework, React.js, PostgreSQL, Gunicorn, Docker, nginx, Microsoft Azure, git
 
 <br>
 
@@ -30,44 +30,87 @@ Django, Django REST Framework, React.js, PostgreSQL, Gunicorn, Docker, Microsoft
 <br>
 
 ## Локальный запуск проекта
-### 0. Подготовить окружение
-- Установить [Docker](https://docs.docker.com/get-docker/)
-- Перейти в директорию проекта с docker-compose.yaml (по умолчанию: infra)
+### 1. Подготовьте окружение
+- Установите [Docker](https://docs.docker.com/get-docker/)
+- Установите [docker-compose](https://docs.docker.com/compose/install/)
+- Перейдите в директорию проекта с файлом docker-compose.yaml (по умолчанию: infra)
 
-### 1. Собрать и запустить контейнеры Docker
+### 2. Создайте файл переменных среды
+Создайте в текущей папке файл .env со следующим содержимым:
+```bash
+SECRET_KEY=mysecretkey
+DJANGO_DEBUG_VALUE=True
+DB_ENGINE=django.db.backends.postgresql
+DB_NAME=postgres
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+DB_HOST=db
+DB_PORT=5432
+```
+
+### 3. Соберите и запустите контейнеры Docker
 ```bash
 docker-compose up --build -d
 ```
+Проект уже доступен! Осталось подготовить базу данных
 
-### 2. Создать администратора Django
+### 4. Мигрируйте базу данных
 ```bash
-docker-compose exec web python manage.py createsuperuser
+docker-compose exec backend python manage.py migrate
 ```
-Введите почту и пароль в интерактивном режиме.
 
-### 3. Заполнить базу данных тестовыми данными
+### 5. Заполните базу данных тестовыми данными
+Определите ID контейнера backend
 ```bash
-docker-compose exec web python manage.py import_csv
+docker-compose ps
+```
+Перенесите в контейнер файл с тестовыми данными и загрузите их в базу:
+```bash
+docker cp ../data/fixtures_backup.json <ID контейнера backend>:/
+docker-compose exec backend python manage.py loaddata /fixtures_backup.json
 ```
 Дождитесь окончания импорта.
 
-### 4. Собрать статические данные
+Сообщение об успехе выглядит примерно так:
 ```bash
-docker-compose exec web python manage.py collectstatic
+Installed 5504 object(s) from 1 fixture(s)
 ```
 
-### 5. Открыть браузер
+### 6. Соберите статические данные
+```bash
+docker-compose exec backend python manage.py collectstatic
+```
+Сообщение об успехе выглядит примерно так:
+```bash
+161 static files copied to '/code/backend_static'.
+```
+
+### 7. Профит! Проверьте в браузере
 - Корневое представление приложения: http://127.0.0.1/
 - Корневое представление API: http://127.0.0.1/api/
 - Спецификация API: http://127.0.0.1/api/docs/
 - Админка: http://127.0.0.1/admin
-- Доступ к админке: login: admin@admin.su; password: admin
-- Развернутый проект: [здесь](http://www.foodgram-project.ml/)
+- Доступ к админке: 
+  - login: admin@admin.su
+  - password: admin
+
+<br>
+
+### Где посмотреть развернутый проект
+- Размещение: Microsoft Azure
+- [Ссылка на проект здесь](http://www.foodgram-project.ml/)
+- Доступ к админке:
+   - login: admin@admin.su
+   - password: admin
+
+<br>
 
 ### Планы по улучшению
 * Добавить более подробный профиль пользователя
 * Добавтиь бота для отправки списка покупок в мессенджеры
 * Увеличить покрытие тестами: добавить проверку схем для моделей
+
+<br>
 
 ### Авторы
 - [Илья Боюр](https://github.com/IlyaBoyur)
