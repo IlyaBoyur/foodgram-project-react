@@ -69,7 +69,7 @@ jobs:
           script: |
             touch .env
             cp /dev/null .env
-            echo DEBUG=False >> .env
+            echo DJANGO_DEBUG_VALUE=False >> .env
             echo SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env
             echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
             echo DB_NAME=${{ secrets.DB_NAME }} >> .env
