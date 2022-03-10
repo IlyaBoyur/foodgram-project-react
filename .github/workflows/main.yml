@@ -67,7 +67,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.WORK_SERVER_PASSPHRASE }}
           script: |
-            cd /foodgram/infra
+            cd ~/foodgram/infra
             touch .env
             cp /dev/null .env
             echo DJANGO_DEBUG_VALUE=False >> .env
